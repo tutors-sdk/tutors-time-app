@@ -1,18 +1,16 @@
-// See https://kit.svelte.dev/docs/types#app
+// See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
+	const APP_VERSION: string;
+  
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface Platform {}
+	  // interface Error {}
+	  // interface Locals {}
+	  // interface PageData {}
+	  // interface PageState {}
+	  // interface Platform {}
 	}
-
-	// Svelte 5 runes
-	var $state: <T>(initial: T) => T;
-	var $derived: <T>(fn: () => T) => T;
-	var $effect: (fn: () => void | (() => void)) => void;
-	var $props: <T>() => T;
-}
-
-export {};
+  }
+  
+  export {};
+  

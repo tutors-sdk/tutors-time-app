@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppBar } from '@skeletonlabs/skeleton';
+
   import { getCalendarData } from '$lib/services/calendar';
   import type { PageData } from './$types';
   import type { CalendarEntry } from '$lib/types';
@@ -126,13 +126,6 @@
   <title>Tutors Time</title>
   <meta name="description" content="Calendar visualization for student course time tracking" />
 </svelte:head>
-
-<AppBar>
-  <svelte:fragment slot="lead">
-    <span class="text-xl font-bold">Tutors Time</span>
-  </svelte:fragment>
-</AppBar>
-
 <!-- Course ID Selection Dialog -->
 <dialog
   bind:this={dialogElement}
