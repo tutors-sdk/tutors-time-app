@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { AppBar } from '@skeletonlabs/skeleton-svelte';
+  import { AppBar, Tabs } from '@skeletonlabs/skeleton-svelte';
   import CourseIdDialog from '$lib/ui/CourseIdDialog.svelte';
   import CalendarTable from '$lib/ui/CalendarTable.svelte';
+  import VisualViewPlaceholder from '$lib/ui/VisualViewPlaceholder.svelte';
   import { getCalendarData } from '$lib/services/calendar';
   import type { PageData } from './$types';
   import type { CalendarEntry } from '$lib/types';
@@ -16,6 +17,9 @@
   let calendarData = $state<CalendarEntry[]>([]);
   let loading = $state(false);
   let error = $state<string | null>(null);
+
+  // Tab state
+  let activeTab = $state('table');
 
   async function loadCalendarData(courseId: string) {
     loading = true;
@@ -100,11 +104,27 @@
         <p class="text-lg text-surface-600">No calendar data available for course ID: {courseid}</p>
       </div>
     {:else}
-      <CalendarTable
-        data={calendarData}
-        loading={loading}
-        error={error}
-      />
+      <Tabs value={activeTab} onValueChange={(details) => (activeTab = details.value)}>
+        <Tabs.List>
+          <Tabs.Trigger value="table">Table View</Tabs.Trigger>
+          <Tabs.Trigger value="visual">Visual View</Tabs.Trigger>
+          <Tabs.Indicator />
+        </Tabs.List>
+        <Tabs.Content value="table">
+          <CalendarTable
+            data={calendarData}
+            loading={loading}
+            error={error}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="visual">
+          <VisualViewPlaceholder
+            data={calendarData}
+            loading={loading}
+            error={error}
+          />
+        </Tabs.Content>
+      </Tabs>
     {/if}
   </div>
 </section>
