@@ -118,11 +118,13 @@
           />
         </Tabs.Content>
         <Tabs.Content value="visual">
-          <VisualViewPlaceholder
-            data={calendarData}
-            loading={loading}
-            error={error}
-          />
+          <div class="visual-tab-viewport">
+            <VisualViewPlaceholder
+              data={calendarData}
+              loading={loading}
+              error={error}
+            />
+          </div>
         </Tabs.Content>
       </Tabs>
     {/if}

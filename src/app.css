@@ -4,3 +4,20 @@
 @import '@skeletonlabs/skeleton-svelte';
 
 @import "@skeletonlabs/skeleton";
+
+/* AG Grid Community – Visual tab course usage grid */
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-quartz.css";
+
+/* Grid fills container (full viewport width/height when parent is viewport-sized) */
+.grid-fill-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Visual tab content: full viewport width and height so the grid fills the view */
+.visual-tab-viewport {
+  width: 100%;
+  height: calc(100vh - 12rem);
+  min-height: 320px;
+}
