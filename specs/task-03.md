@@ -14,16 +14,18 @@ This document contains the detailed task breakdown for Milestone 3 of the Tutors
 - **Status**: [ ] Not Started / [ ] In Progress / [ ] Completed
 - **Priority**: High
 - **Assignee**: [Name]
-- **Description**: Implement a dialog that prompts the user to enter a courseid before loading calendar data. The application should only fetch and display calendar entries for the specified courseid.
+- **Description**: Implement a dialog that prompts the user to enter a courseid before loading calendar data. The application should only fetch and display calendar entries for the specified courseid. E2E tests should use the course ID `setu-hdip-comp-sci-2025-full-stack-1` for testing purposes.
 - **Acceptance Criteria**:
   - [ ] Dialog component implemented using Skeleton.dev Dialog/Modal component
   - [ ] Dialog appears on page load before data is fetched
-  - [ ] User can enter a courseid in the dialog
+  - [ ] User can enter a courseid in the dialog (e.g., `setu-hdip-comp-sci-2025-full-stack-1`)
   - [ ] Dialog validates that courseid is provided (required field)
   - [ ] On submit, calendar data is fetched filtered by the entered courseid
   - [ ] Dialog closes after successful courseid submission
   - [ ] Error handling if courseid is invalid or no data found
   - [ ] User can change courseid (reopen dialog or change courseid)
+  - [ ] Dialog is centered and middle-aligned on the screen
+- **Test Data**: E2E tests should use `setu-hdip-comp-sci-2025-full-stack-1` as the test course ID
 - **Dependencies**: FEAT-001 (from Milestone 2), API-001 (from Milestone 2)
 - **Estimated Effort**: [Hours/Days]
 
@@ -94,13 +96,16 @@ This document contains the detailed task breakdown for Milestone 3 of the Tutors
 - **Description**: Create Playwright e2e tests for filtering functionality
 - **Acceptance Criteria**:
   - [ ] Test: Course ID dialog appears on page load
-  - [ ] Test: User can enter courseid in dialog
-  - [ ] Test: Calendar data loads only for specified courseid
+  - [ ] Test: User can enter courseid `setu-hdip-comp-sci-2025-full-stack-1` in dialog
+  - [ ] Test: Calendar data loads only for specified courseid `setu-hdip-comp-sci-2025-full-stack-1`
+  - [ ] Test: All table rows display the correct courseid `setu-hdip-comp-sci-2025-full-stack-1`
   - [ ] Test: Student filter filters table correctly
   - [ ] Test: Date filter filters table correctly
   - [ ] Test: Combined filters (studentid + date) work together
   - [ ] Test: User can change courseid and reload data
   - [ ] Test: Clearing filters resets table to show all data for courseid
+  - [ ] Test: "No entries" message appears when filters match no data
+- **Test Data**: All E2E tests should use the course ID `setu-hdip-comp-sci-2025-full-stack-1` when entering data in the course ID selection dialog
 - **Dependencies**: FEAT-005, TEST-002 (from Milestone 2)
 - **Estimated Effort**: [Hours/Days]
 

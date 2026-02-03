@@ -6,6 +6,10 @@ test('application loads', async ({ page }) => {
   // Check that the page title is correct
   await expect(page).toHaveTitle(/Tutors Time/);
 
-  // Check that the main heading is visible
+  // Check that the dialog appears (course ID selection)
+  const dialog = page.locator('dialog');
+  await expect(dialog).toBeVisible();
+
+  // Check that the AppBar headline is visible
   await expect(page.getByRole('heading', { name: /Calendar Data/i })).toBeVisible();
 });

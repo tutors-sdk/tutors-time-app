@@ -1,11 +1,34 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Calendar Table Display', () => {
-  test('should display calendar data in table', async ({ page }) => {
-    await page.goto('/');
+const COURSE_ID = 'setu-hdip-comp-sci-2025-full-stack-1';
 
-    // Wait for loading state to disappear
-    await page.waitForSelector('text=Loading calendar data...', { state: 'hidden' });
+test.describe('Calendar Table Display', () => {
+  // Helper function to handle course ID dialog
+  async function enterCourseId(page: any) {
+    // Wait for dialog to appear
+    const dialog = page.locator('dialog');
+    await expect(dialog).toBeVisible();
+
+    // Fill in the course ID
+    const courseIdInput = page.locator('#courseid-input');
+    await courseIdInput.fill(COURSE_ID);
+
+    // Submit the form
+    const submitButton = page.locator('button:has-text("Load Data")');
+    await submitButton.click();
+
+    // Wait for dialog to close and table to load
+    await expect(dialog).not.toBeVisible();
+    await page.waitForSelector('table.table tbody tr', { timeout: 10000 });
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await enterCourseId(page);
+  });
+
+  test('should display calendar data in table', async ({ page }) => {
+    // Course ID already entered in beforeEach
 
     // Check that table is visible
     const table = page.locator('table.table');
@@ -31,6 +54,18 @@ test.describe('Calendar Table Display', () => {
   test('should show loading state initially', async ({ page }) => {
     await page.goto('/');
 
+    // Wait for dialog
+    const dialog = page.locator('dialog');
+    await expect(dialog).toBeVisible();
+
+    // Enter course ID
+    const courseIdInput = page.locator('#courseid-input');
+    await courseIdInput.fill(COURSE_ID);
+
+    // Submit and check for loading message
+    const submitButton = page.locator('button:has-text("Load Data")');
+    await submitButton.click();
+
     // Check for loading message (may be brief, so use waitFor with timeout)
     const loadingText = page.locator('text=Loading calendar data...');
     await expect(loadingText).toBeVisible({ timeout: 1000 }).catch(() => {
@@ -49,16 +84,21 @@ test.describe('Calendar Table Display', () => {
 
     await page.goto('/');
 
+    // Enter course ID in dialog
+    const dialog = page.locator('dialog');
+    await expect(dialog).toBeVisible();
+    const courseIdInput = page.locator('#courseid-input');
+    await courseIdInput.fill(COURSE_ID);
+    const submitButton = page.locator('button:has-text("Load Data")');
+    await submitButton.click();
+
     // Wait for error state
     await page.waitForSelector('text=Error loading data', { timeout: 5000 });
     await expect(page.locator('text=Error loading data')).toBeVisible();
   });
 
   test('should format date correctly', async ({ page }) => {
-    await page.goto('/');
-
-    // Wait for table to load
-    await page.waitForSelector('table.table tbody tr', { timeout: 5000 });
+    // Course ID already entered in beforeEach, table should be loaded
 
     // Check that date column contains formatted dates
     const dateCells = page.locator('table.table tbody tr td:first-child');
@@ -69,9 +109,7 @@ test.describe('Calendar Table Display', () => {
   });
 
   test('should display all required columns', async ({ page }) => {
-    await page.goto('/');
-
-    await page.waitForSelector('table.table tbody tr', { timeout: 5000 });
+    // Course ID already entered in beforeEach, table should be loaded
 
     const firstRow = page.locator('table.table tbody tr').first();
     const cells = firstRow.locator('td');
