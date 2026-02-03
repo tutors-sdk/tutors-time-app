@@ -91,7 +91,7 @@
         valueFormatter: (p) =>
           p.value != null && Number(p.value) > 0 ? formatTime(Number(p.value)) : '',
         cellClass: 'ag-right-aligned-cell',
-        width: 52,
+        width: 40,
         maxWidth: 64,
       });
     }
