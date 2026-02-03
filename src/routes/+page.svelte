@@ -2,7 +2,7 @@
   import { AppBar, Tabs } from '@skeletonlabs/skeleton-svelte';
   import CourseIdDialog from '$lib/ui/CourseIdDialog.svelte';
   import CalendarTable from '$lib/ui/CalendarTable.svelte';
-  import VisualViewPlaceholder from '$lib/ui/VisualViewPlaceholder.svelte';
+  import CalendarGrid from '$lib/ui/CalendarGrid.svelte';
   import { getCalendarData } from '$lib/services/calendar';
   import type { PageData } from './$types';
   import type { CalendarEntry } from '$lib/types';
@@ -119,7 +119,7 @@
         </Tabs.Content>
         <Tabs.Content value="visual">
           <div class="visual-tab-viewport">
-            <VisualViewPlaceholder
+            <CalendarGrid
               data={calendarData}
               loading={loading}
               error={error}

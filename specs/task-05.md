@@ -36,7 +36,7 @@ This document describes the implementation of the Visual tab as a course usage v
 
 ## Component
 
-- Implementation lives in the Visual tab content. This can be inside `VisualViewPlaceholder.svelte` (replacing the placeholder content with the grid) or a dedicated component such as `CalendarGrid.svelte` used by the page for the Visual tab.
+- Implementation lives in `CalendarGrid.svelte`, used by the page for the Visual tab.
 - Same props as current Visual tab: `data: CalendarEntry[]`, `loading: boolean`, `error: string | null`.
 
 ## Success criteria
