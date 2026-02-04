@@ -13,7 +13,11 @@
 
   type Events = {
     /** One or more course IDs submitted from the dialog */
-    submit: { courseIds: string[] };
+    submit: { 
+      courseIds: string[];
+      startDate: string | null;
+      endDate: string | null;
+    };
     close: void;
     open: { open: boolean };
   };
@@ -24,6 +28,9 @@
 
   // Multi-course input: one course ID per line
   let courseIdsInput = $state('');
+  let startDateInput = $state('');
+  let endDateInput = $state('');
+  let dateRangeError = $state<string | null>(null);
   let dialogElement: HTMLDialogElement | undefined;
 
   // Update textarea when primary courseId prop changes
@@ -54,7 +61,21 @@
       return;
     }
 
-    dispatch('submit', { courseIds: uniqueIds });
+    // Validate date range
+    const startDate = startDateInput.trim() || null;
+    const endDate = endDateInput.trim() || null;
+    
+    if (startDate && endDate && startDate > endDate) {
+      dateRangeError = 'Start date must be before or equal to end date';
+      return;
+    }
+
+    dateRangeError = null;
+    dispatch('submit', { 
+      courseIds: uniqueIds,
+      startDate,
+      endDate
+    });
   }
 
   function handleClose() {
@@ -71,7 +92,7 @@
   <div class="card bg-surface-100-900 w-full max-w-md p-6 space-y-4 shadow-xl m-auto">
     <h2 class="text-2xl font-bold">Select Course IDs</h2>
     <p class="text-surface-600">
-      Enter one or more course IDs to view calendar data. Use one course ID per line.
+      Enter one or more course IDs to view calendar data. Use one course ID per line. Optionally select a date range to filter the data.
     </p>
     <div class="space-y-4">
       <div>
@@ -87,6 +108,29 @@
           <p class="text-sm text-error-500 mt-1">{error}</p>
         {/if}
       </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label for="start-date-input" class="label">Start Date (optional)</label>
+          <input
+            id="start-date-input"
+            type="date"
+            bind:value={startDateInput}
+            class="input"
+          />
+        </div>
+        <div>
+          <label for="end-date-input" class="label">End Date (optional)</label>
+          <input
+            id="end-date-input"
+            type="date"
+            bind:value={endDateInput}
+            class="input"
+          />
+        </div>
+      </div>
+      {#if dateRangeError}
+        <p class="text-sm text-error-500">{dateRangeError}</p>
+      {/if}
       <div class="flex justify-end gap-2">
         <button
           type="button"

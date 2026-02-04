@@ -33,7 +33,32 @@
     return `${courseId} (${suffix})`;
   }
 
-  async function loadCalendarDataForCourses(courseIds: string[]) {
+  function filterByDateRange(
+    entries: CalendarEntry[],
+    startDate: string | null,
+    endDate: string | null
+  ): CalendarEntry[] {
+    if (!startDate && !endDate) {
+      return entries;
+    }
+
+    return entries.filter((entry) => {
+      const entryDate = entry.id;
+      if (startDate && entryDate < startDate) {
+        return false;
+      }
+      if (endDate && entryDate > endDate) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  async function loadCalendarDataForCourses(
+    courseIds: string[],
+    startDate: string | null,
+    endDate: string | null
+  ) {
     const uniqueIds = Array.from(
       new Set(
         courseIds
@@ -68,9 +93,10 @@
 
     for (const id of uniqueIds) {
       try {
-        const data = await getCalendarData(id);
+        const rawData = await getCalendarData(id);
+        const filteredData = filterByDateRange(rawData, startDate, endDate);
         courses = courses.map((c) =>
-          c.id === id ? { ...c, data, loading: false, error: null } : c
+          c.id === id ? { ...c, data: filteredData, loading: false, error: null } : c
         );
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Failed to load calendar data';
@@ -83,8 +109,16 @@
     dialogLoading = false;
   }
 
-  function handleCourseIdSubmit(event: CustomEvent<{ courseIds: string[] }>) {
-    loadCalendarDataForCourses(event.detail.courseIds);
+  function handleCourseIdSubmit(event: CustomEvent<{ 
+    courseIds: string[];
+    startDate: string | null;
+    endDate: string | null;
+  }>) {
+    loadCalendarDataForCourses(
+      event.detail.courseIds,
+      event.detail.startDate,
+      event.detail.endDate
+    );
   }
 
   function openChangeCourseDialog() {
