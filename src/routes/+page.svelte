@@ -3,6 +3,7 @@
   import CourseIdDialog from '$lib/ui/CourseIdDialog.svelte';
   import CalendarTable from '$lib/ui/CalendarTable.svelte';
   import CalendarGrid from '$lib/ui/CalendarGrid.svelte';
+  import CourseSummaryGrid from '$lib/ui/CourseSummaryGrid.svelte';
   import { getCalendarData } from '$lib/services/calendar';
   import type { PageData } from './$types';
   import type { CalendarEntry } from '$lib/types';
@@ -108,6 +109,7 @@
         <Tabs.List>
           <Tabs.Trigger value="table">Table View</Tabs.Trigger>
           <Tabs.Trigger value="visual">Visual View</Tabs.Trigger>
+          <Tabs.Trigger value="summary">Summary View</Tabs.Trigger>
           <Tabs.Indicator />
         </Tabs.List>
         <Tabs.Content value="table">
@@ -120,6 +122,15 @@
         <Tabs.Content value="visual">
           <div class="visual-tab-viewport">
             <CalendarGrid
+              data={calendarData}
+              loading={loading}
+              error={error}
+            />
+          </div>
+        </Tabs.Content>
+        <Tabs.Content value="summary">
+          <div class="summary-tab-viewport">
+            <CourseSummaryGrid
               data={calendarData}
               loading={loading}
               error={error}
