@@ -22,6 +22,16 @@
   min-height: 320px;
 }
 
+/* Column headers: slightly smaller font */
+.ag-theme-quartz .ag-header-cell-text {
+  font-size: 0.8rem;
+}
+
+/* Time cells (Total + date columns): slightly smaller font */
+.ag-theme-quartz .ag-cell.ag-right-aligned-cell {
+  font-size: 0.8rem;
+}
+
 /* Vertical column headers (AG Grid) – save horizontal space */
 .ag-theme-quartz .ag-header-vertical .ag-header-cell-label {
   display: flex;

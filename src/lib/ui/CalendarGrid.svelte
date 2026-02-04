@@ -42,6 +42,33 @@
     return `${minutes}`;
   }
 
+  /** Background colour by minutes: 0 = white, 1 = light green, 1–30 = deeper green */
+  function cellColorForMinutes(seconds: number | null | undefined): string {
+    const minutes = seconds != null ? Number(seconds) / 60 : 0;
+    const white = { r: 255, g: 255, b: 255 };
+    const lightGreen = { r: 200, g: 255, b: 200 };
+    const deepGreen = { r: 0, g: 120, b: 0 };
+    let r: number;
+    let g: number;
+    let b: number;
+    if (minutes <= 0) {
+      r = white.r;
+      g = white.g;
+      b = white.b;
+    } else if (minutes <= 1) {
+      const t = minutes;
+      r = Math.round(white.r + t * (lightGreen.r - white.r));
+      g = Math.round(white.g + t * (lightGreen.g - white.g));
+      b = Math.round(white.b + t * (lightGreen.b - white.b));
+    } else {
+      const t = Math.min(1, (minutes - 1) / 29);
+      r = Math.round(lightGreen.r + t * (deepGreen.r - lightGreen.r));
+      g = Math.round(lightGreen.g + t * (deepGreen.g - lightGreen.g));
+      b = Math.round(lightGreen.b + t * (deepGreen.b - lightGreen.b));
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
   const dates = $derived(Array.from(new Set(data.map((e) => e.id))).sort());
 
   const pivotedRowData = $derived(
@@ -79,6 +106,7 @@
             ? String(Math.round(Number(p.value) / 60))
             : '',
         cellClass: 'ag-right-aligned-cell',
+        cellStyle: (p) => ({ backgroundColor: cellColorForMinutes(p.value as number) }),
         width: 52,
         maxWidth: 64,
       },
@@ -91,6 +119,10 @@
         valueFormatter: (p) =>
           p.value != null && Number(p.value) > 0 ? formatTime(Number(p.value)) : '',
         cellClass: 'ag-right-aligned-cell',
+        cellStyle: (p) => ({
+          backgroundColor: cellColorForMinutes(p.value as number),
+          textAlign: 'center',
+        }),
         width: 40,
         maxWidth: 64,
       });
