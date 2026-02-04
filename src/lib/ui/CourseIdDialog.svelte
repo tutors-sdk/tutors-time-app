@@ -3,13 +3,17 @@
 
   interface Props {
     open: boolean;
+    /** Last used / primary course ID (used to seed multi-input) */
     courseId: string | null;
+    /** Overall loading flag while (re)loading courses */
     loading: boolean;
+    /** Validation / top-level error message for the dialog */
     error: string | null;
   }
 
   type Events = {
-    submit: { courseId: string };
+    /** One or more course IDs submitted from the dialog */
+    submit: { courseIds: string[] };
     close: void;
     open: { open: boolean };
   };
@@ -18,13 +22,14 @@
 
   const dispatch = createEventDispatcher<Events>();
 
-  let courseidInput = $state('');
+  // Multi-course input: one course ID per line
+  let courseIdsInput = $state('');
   let dialogElement: HTMLDialogElement | undefined;
 
-  // Update input when courseId prop changes
+  // Update textarea when primary courseId prop changes
   $effect(() => {
     if (courseId) {
-      courseidInput = courseId;
+      courseIdsInput = courseId;
     }
   });
 
@@ -38,20 +43,23 @@
   });
 
   function handleSubmit() {
-    const trimmedCourseId = courseidInput.trim();
-    if (!trimmedCourseId) {
+    const ids = courseIdsInput
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const uniqueIds = Array.from(new Set(ids));
+
+    if (!uniqueIds.length) {
       return;
     }
-    dispatch('submit', { courseId: trimmedCourseId });
+
+    dispatch('submit', { courseIds: uniqueIds });
   }
 
   function handleClose() {
-    // Prevent closing if no courseId is set
-    if (!courseId) {
-      dispatch('open', { open: true });
-    } else {
-      dispatch('close');
-    }
+    // Let the parent decide whether the dialog should reopen
+    dispatch('close');
   }
 </script>
 
@@ -61,25 +69,20 @@
   onclose={handleClose}
 >
   <div class="card bg-surface-100-900 w-full max-w-md p-6 space-y-4 shadow-xl m-auto">
-    <h2 class="text-2xl font-bold">Select Course ID</h2>
+    <h2 class="text-2xl font-bold">Select Course IDs</h2>
     <p class="text-surface-600">
-      Please enter a course ID to view calendar data for that course.
+      Enter one or more course IDs to view calendar data. Use one course ID per line.
     </p>
     <div class="space-y-4">
       <div>
-        <label for="courseid-input" class="label">Course ID</label>
-        <input
-          id="courseid-input"
-          type="text"
-          bind:value={courseidInput}
-          placeholder="Enter course ID"
-          class="input"
-          onkeydown={(e) => {
-            if (e.key === 'Enter') {
-              handleSubmit();
-            }
-          }}
-        />
+        <label for="courseids-input" class="label">Course IDs</label>
+        <textarea
+          id="courseids-input"
+          bind:value={courseIdsInput}
+          placeholder="Enter one course ID per line"
+          class="textarea"
+          rows={4}
+        ></textarea>
         {#if error && open}
           <p class="text-sm text-error-500 mt-1">{error}</p>
         {/if}

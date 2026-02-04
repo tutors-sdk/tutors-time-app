@@ -10,41 +10,81 @@
 
   let { data }: { data: PageData } = $props();
 
-  // Course ID state
-  let courseid = $state<string | null>(null);
+  type CourseViewState = {
+    id: string;
+    data: CalendarEntry[];
+    loading: boolean;
+    error: string | null;
+  };
+
+  // Selected courses and dialog state
+  let courses = $state<CourseViewState[]>([]);
+  let primaryCourseId = $state<string | null>(null); // used to seed dialog when single-course
   let dialogOpen = $state(true); // Open dialog on page load
 
-  // Calendar data state
-  let calendarData = $state<CalendarEntry[]>([]);
-  let loading = $state(false);
-  let error = $state<string | null>(null);
+  // Dialog-level state (validation + "any loading" flag)
+  let dialogLoading = $state(false);
+  let dialogError = $state<string | null>(null);
 
   // Tab state
-  let activeTab = $state('table');
+  let activeTab = $state<string | null>(null);
 
-  async function loadCalendarData(courseId: string) {
-    loading = true;
-    error = null;
-    try {
-      const data = await getCalendarData(courseId);
-      calendarData = data;
-      courseid = courseId;
-      dialogOpen = false;
-    } catch (e) {
-      error = e instanceof Error ? e.message : 'Failed to load calendar data';
-      calendarData = [];
-    } finally {
-      loading = false;
-    }
+  function makeTabValue(courseId: string, suffix: 't' | 'v' | 's'): string {
+    return `${courseId} (${suffix})`;
   }
 
-  function handleCourseIdSubmit(event: CustomEvent<{ courseId: string }>) {
-    const trimmedCourseId = event.detail.courseId.trim();
-    if (!trimmedCourseId) {
-      error = 'Course ID is required';
+  async function loadCalendarDataForCourses(courseIds: string[]) {
+    const uniqueIds = Array.from(
+      new Set(
+        courseIds
+          .map((id) => id.trim())
+          .filter(Boolean)
+      )
+    );
+
+    if (uniqueIds.length === 0) {
+      dialogError = 'At least one course ID is required';
       return;
     }
-    loadCalendarData(trimmedCourseId);
+
+    dialogError = null;
+    dialogLoading = true;
+
+    // Initialise per-course state
+    courses = uniqueIds.map((id) => ({
+      id,
+      data: [],
+      loading: true,
+      error: null,
+    }));
+
+    // Track "primary" course only when a single course is selected
+    primaryCourseId = uniqueIds.length === 1 ? uniqueIds[0] : null;
+
+    // Set initial active tab: first course, table view
+    activeTab = makeTabValue(uniqueIds[0], 't');
+
+    dialogOpen = false;
+
+    for (const id of uniqueIds) {
+      try {
+        const data = await getCalendarData(id);
+        courses = courses.map((c) =>
+          c.id === id ? { ...c, data, loading: false, error: null } : c
+        );
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Failed to load calendar data';
+        courses = courses.map((c) =>
+          c.id === id ? { ...c, data: [], loading: false, error: msg } : c
+        );
+      }
+    }
+
+    dialogLoading = false;
+  }
+
+  function handleCourseIdSubmit(event: CustomEvent<{ courseIds: string[] }>) {
+    loadCalendarDataForCourses(event.detail.courseIds);
   }
 
   function openChangeCourseDialog() {
@@ -52,8 +92,8 @@
   }
 
   function handleDialogClose() {
-    // Dialog close is handled by the component - prevent closing if no courseId
-    if (!courseid) {
+    // Dialog close is handled by the component - prevent closing if no courses selected
+    if (!courses.length) {
       dialogOpen = true;
     }
   }
@@ -70,9 +110,9 @@
 
 <CourseIdDialog
   open={dialogOpen}
-  courseId={courseid}
-  loading={loading}
-  error={error}
+  courseId={primaryCourseId}
+  loading={dialogLoading}
+  error={dialogError}
   on:submit={handleCourseIdSubmit}
   on:close={handleDialogClose}
   on:open={handleDialogOpen}
@@ -82,61 +122,88 @@
   <div class="card p-6">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-3xl font-bold">Calendar Data</h1>
-      {#if courseid}
+      {#if courses.length === 1}
         <div class="flex items-center gap-4">
-          <span class="text-sm text-surface-600">Course ID: <strong>{courseid}</strong></span>
+          <span class="text-sm text-surface-600">
+            Course ID: <strong>{courses[0].id}</strong>
+          </span>
           <button
             type="button"
             onclick={openChangeCourseDialog}
             class="btn variant-filled-secondary"
           >
-            Change Course
+            Change Courses
+          </button>
+        </div>
+      {:else if courses.length > 1}
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-surface-600">
+            Courses:
+            <strong>{courses.map((c) => c.id).join(', ')}</strong>
+          </span>
+          <button
+            type="button"
+            onclick={openChangeCourseDialog}
+            class="btn variant-filled-secondary"
+          >
+            Change Courses
           </button>
         </div>
       {/if}
     </div>
 
-    {#if !courseid}
+    {#if courses.length === 0}
       <div class="flex items-center justify-center p-8">
-        <p class="text-lg text-surface-600">Please select a course ID to view calendar data</p>
-      </div>
-    {:else if calendarData.length === 0}
-      <div class="flex items-center justify-center p-8">
-        <p class="text-lg text-surface-600">No calendar data available for course ID: {courseid}</p>
+        <p class="text-lg text-surface-600">
+          Please select one or more course IDs to view calendar data
+        </p>
       </div>
     {:else}
-      <Tabs value={activeTab} onValueChange={(details) => (activeTab = details.value)}>
+      <Tabs
+        value={activeTab ?? (courses.length ? makeTabValue(courses[0].id, 't') : 'table')}
+        onValueChange={(details) => (activeTab = details.value)}
+      >
         <Tabs.List>
-          <Tabs.Trigger value="table">Table View</Tabs.Trigger>
-          <Tabs.Trigger value="visual">Visual View</Tabs.Trigger>
-          <Tabs.Trigger value="summary">Summary View</Tabs.Trigger>
+          {#each courses as course}
+            <Tabs.Trigger value={makeTabValue(course.id, 't')}>
+              {course.id} (t)
+            </Tabs.Trigger>
+            <Tabs.Trigger value={makeTabValue(course.id, 'v')}>
+              {course.id} (v)
+            </Tabs.Trigger>
+            <Tabs.Trigger value={makeTabValue(course.id, 's')}>
+              {course.id} (s)
+            </Tabs.Trigger>
+          {/each}
           <Tabs.Indicator />
         </Tabs.List>
-        <Tabs.Content value="table">
-          <CalendarTable
-            data={calendarData}
-            loading={loading}
-            error={error}
-          />
-        </Tabs.Content>
-        <Tabs.Content value="visual">
-          <div class="visual-tab-viewport">
-            <CalendarGrid
-              data={calendarData}
-              loading={loading}
-              error={error}
+        {#each courses as course}
+          <Tabs.Content value={makeTabValue(course.id, 't')}>
+            <CalendarTable
+              data={course.data}
+              loading={course.loading}
+              error={course.error}
             />
-          </div>
-        </Tabs.Content>
-        <Tabs.Content value="summary">
-          <div class="summary-tab-viewport">
-            <CourseSummaryGrid
-              data={calendarData}
-              loading={loading}
-              error={error}
-            />
-          </div>
-        </Tabs.Content>
+          </Tabs.Content>
+          <Tabs.Content value={makeTabValue(course.id, 'v')}>
+            <div class="visual-tab-viewport">
+              <CalendarGrid
+                data={course.data}
+                loading={course.loading}
+                error={course.error}
+              />
+            </div>
+          </Tabs.Content>
+          <Tabs.Content value={makeTabValue(course.id, 's')}>
+            <div class="summary-tab-viewport">
+              <CourseSummaryGrid
+                data={course.data}
+                loading={course.loading}
+                error={course.error}
+              />
+            </div>
+          </Tabs.Content>
+        {/each}
       </Tabs>
     {/if}
   </div>
