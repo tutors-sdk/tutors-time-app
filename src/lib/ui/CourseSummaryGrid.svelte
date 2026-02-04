@@ -3,9 +3,10 @@
   import type { ColDef, GridApi } from 'ag-grid-community';
   import type { CalendarEntry } from '$lib/types';
   import {
-    getDistinctSortedDates,
+    getDistinctSortedWeeks,
+    getMondayForDate,
     buildTotalSecondsColumn,
-    buildPerDateTimeColumns,
+    buildPerWeekTimeColumnsMinutesOnly,
   } from '$lib/calendarUtils';
 
   ModuleRegistry.registerModules([AllCommunityModule]);
@@ -19,7 +20,7 @@
   type SummaryRow = {
     courseid: string;
     totalSeconds: number;
-    [dateKey: string]: string | number;
+    [weekKey: string]: string | number;
   };
 
   let { data, loading, error }: Props = $props();
@@ -27,22 +28,24 @@
   let gridContainer = $state<HTMLDivElement | null>(null);
   let gridApi = $state<GridApi<SummaryRow> | null>(null);
 
-  const dates = $derived(getDistinctSortedDates(data));
+  const weeks = $derived(getDistinctSortedWeeks(data));
 
   const summaryRow = $derived(
     (() => {
       if (!data.length) return null;
       const courseid = data[0].courseid;
       let totalSeconds = 0;
-      const totalsByDate = new Map<string, number>();
+      const totalsByWeek = new Map<string, number>();
+      // Group by week (Monday date)
       for (const entry of data) {
         const secs = entry.timeactive ?? 0;
         totalSeconds += secs;
-        totalsByDate.set(entry.id, (totalsByDate.get(entry.id) ?? 0) + secs);
+        const weekMonday = getMondayForDate(entry.id);
+        totalsByWeek.set(weekMonday, (totalsByWeek.get(weekMonday) ?? 0) + secs);
       }
       const row: SummaryRow = { courseid, totalSeconds };
-      for (const d of dates) {
-        row[d] = totalsByDate.get(d) ?? 0;
+      for (const weekMonday of weeks) {
+        row[weekMonday] = totalsByWeek.get(weekMonday) ?? 0;
       }
       return row;
     })()
@@ -59,7 +62,7 @@
         flex: 1,
       },
       buildTotalSecondsColumn<SummaryRow>('totalSeconds', 'Total'),
-      ...buildPerDateTimeColumns<SummaryRow>(dates),
+      ...buildPerWeekTimeColumnsMinutesOnly<SummaryRow>(weeks),
     ];
 
     return cols;

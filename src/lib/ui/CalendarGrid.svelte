@@ -3,9 +3,10 @@
   import type { ColDef, GridApi } from 'ag-grid-community';
   import type { CalendarEntry } from '$lib/types';
   import {
-    getDistinctSortedDates,
+    getDistinctSortedWeeks,
+    getMondayForDate,
     buildTotalSecondsColumn,
-    buildPerDateTimeColumns,
+    buildPerWeekTimeColumns,
   } from '$lib/calendarUtils';
 
   ModuleRegistry.registerModules([AllCommunityModule]);
@@ -16,30 +17,32 @@
     error: string | null;
   }
 
-  /** Pivoted row: student id, total seconds, then one field per date (time active seconds) */
-  type PivotedRow = { studentid: string; totalSeconds: number; [dateKey: string]: string | number };
+  /** Pivoted row: student id, total seconds, then one field per week (time active seconds) */
+  type PivotedRow = { studentid: string; totalSeconds: number; [weekKey: string]: string | number };
 
   let { data, loading, error }: Props = $props();
 
   let gridContainer = $state<HTMLDivElement | null>(null);
   let gridApi = $state<GridApi<PivotedRow> | null>(null);
 
-  const dates = $derived(getDistinctSortedDates(data));
+  const weeks = $derived(getDistinctSortedWeeks(data));
 
   const pivotedRowData = $derived(
     (() => {
       const students = Array.from(new Set(data.map((e) => e.studentid))).sort();
       const map = new Map<string, number>();
+      // Group by studentid + week (Monday date)
       for (const e of data) {
-        const key = `${e.studentid}\t${e.id}`;
+        const weekMonday = getMondayForDate(e.id);
+        const key = `${e.studentid}\t${weekMonday}`;
         map.set(key, (map.get(key) ?? 0) + e.timeactive);
       }
       return students.map((studentid) => {
         let totalSeconds = 0;
         const row: PivotedRow = { studentid, totalSeconds: 0 };
-        for (const d of dates) {
-          const secs = map.get(`${studentid}\t${d}`) ?? 0;
-          row[d] = secs;
+        for (const weekMonday of weeks) {
+          const secs = map.get(`${studentid}\t${weekMonday}`) ?? 0;
+          row[weekMonday] = secs;
           totalSeconds += secs;
         }
         row.totalSeconds = totalSeconds;
@@ -52,7 +55,7 @@
     const cols: ColDef<PivotedRow>[] = [
       { field: 'studentid', headerName: 'Student ID', minWidth: 120, flex: 1, pinned: 'left' },
       buildTotalSecondsColumn<PivotedRow>('totalSeconds', 'Total'),
-      ...buildPerDateTimeColumns<PivotedRow>(dates),
+      ...buildPerWeekTimeColumns<PivotedRow>(weeks),
     ];
     return cols;
   });
@@ -100,7 +103,7 @@
     <p class="text-lg text-surface-600">No calendar data available</p>
   </div>
 {:else}
-  <div class="ag-theme-quartz grid-fill-container" role="grid" aria-label="Course usage by student and date">
+  <div class="ag-theme-quartz grid-fill-container" role="grid" aria-label="Course usage by student and week">
     <div bind:this={gridContainer} class="grid-fill-container"></div>
   </div>
 {/if}
