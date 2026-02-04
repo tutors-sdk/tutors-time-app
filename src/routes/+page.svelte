@@ -118,8 +118,8 @@
   on:open={handleDialogOpen}
 />
 
-<section class="container mx-auto p-4">
-  <div class="card p-6">
+<section class="p-2">
+  <div class="card p-4">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-3xl font-bold">Calendar Data</h1>
       {#if courses.length === 1}
