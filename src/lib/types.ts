@@ -27,3 +27,13 @@ export interface TutorsConnectUser {
   date_last_accessed: string | null; // timestamptz (ISO string)
 }
 
+// Aggregated per-course calendar view used by the grids
+export type CourseCalendar = {
+  id: string; // original course ID
+  title: string; // display title (usually from tutors-connect-courses)
+  data: CalendarEntry[];
+  loading: boolean;
+  error: string | null;
+};
+
+

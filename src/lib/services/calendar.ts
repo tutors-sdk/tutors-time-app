@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import type { CalendarEntry, TutorsConnectCourse, TutorsConnectUser } from "../types";
+import type { CalendarEntry, TutorsConnectCourse, TutorsConnectUser, CourseCalendar } from "../types";
 
 export async function getCalendarData(courseid?: string): Promise<CalendarEntry[]> {
   const supabase = getSupabase();
@@ -67,14 +67,6 @@ export function filterByDateRange(entries: CalendarEntry[], startDate: string | 
   });
 }
 
-export type CourseViewState = {
-  id: string; // Keep original course ID for internal use
-  title: string; // Display title from course_record.title or fallback to id
-  data: CalendarEntry[];
-  loading: boolean;
-  error: string | null;
-};
-
 /**
  * Lookup course titles from tutors-connect-courses table.
  * Returns a map from course_id -> title (or course_id if title not found).
@@ -117,7 +109,7 @@ async function getCourseTitles(courseIds: string[]): Promise<Record<string, stri
 }
 
 /** Load calendar data for multiple courses with date filtering. */
-export async function loadCalendarDataForCourses(courseIds: string[], startDate: string | null, endDate: string | null): Promise<CourseViewState[]> {
+export async function loadCalendarDataForCourses(courseIds: string[], startDate: string | null, endDate: string | null): Promise<CourseCalendar[]> {
   const uniqueIds = Array.from(new Set(courseIds.map((id) => id.trim()).filter(Boolean)));
 
   if (uniqueIds.length === 0) {
@@ -128,7 +120,7 @@ export async function loadCalendarDataForCourses(courseIds: string[], startDate:
   const titleMap = await getCourseTitles(uniqueIds);
 
   // Initialize per-course state with titles
-  const courses: CourseViewState[] = uniqueIds.map((id) => ({
+  const courses: CourseCalendar[] = uniqueIds.map((id) => ({
     id,
     title: titleMap[id] || id, // Use title or fallback to id
     data: [],

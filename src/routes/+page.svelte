@@ -2,11 +2,12 @@
   import CourseIdDialog from "$lib/ui/CourseIdDialog.svelte";
   import CourseList from "$lib/ui/CourseList.svelte";
   import CourseTabsView from "$lib/ui/CourseTabsView.svelte";
-  import { loadCalendarDataForCourses, type CourseViewState } from "$lib/services/calendar";
+  import { TutorsStore } from "$lib/services/TutorsStore";
+  import type { CourseCalendar } from "$lib/services/calendar";
   import type { PageData } from "./$types";
 
   // Selected courses and dialog state
-  let courses = $state<CourseViewState[]>([]);
+  let courses = $state<CourseCalendar[]>([]);
   let primaryCourseId = $state<string | null>(null); // used to seed dialog when single-course
   let dialogOpen = $state(true); // Open dialog on page load
 
@@ -26,7 +27,7 @@
     dialogLoading = true;
 
     try {
-      const loadedCourses = await loadCalendarDataForCourses(courseIds, startDate, endDate);
+      const loadedCourses = await TutorsStore.loadCalendar(courseIds, startDate, endDate);
 
       courses = loadedCourses;
 
