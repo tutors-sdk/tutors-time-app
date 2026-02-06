@@ -4,6 +4,9 @@ import type { ColDef } from 'ag-grid-community';
 // Shared view mode type for calendar grids.
 export type ViewMode = 'week' | 'day';
 
+// View mode type for labs grid (lab vs step).
+export type LabViewMode = 'lab' | 'step';
+
 // Shared row types so grids can reuse aggregation helpers.
 export type PivotedRow = { studentid: string; totalSeconds: number; [key: string]: string | number };
 export type SummaryRow = { courseid: string; totalSeconds: number; [key: string]: string | number };
@@ -326,6 +329,14 @@ export function toggleViewMode(current: ViewMode): ViewMode {
 }
 
 /**
+ * Toggle helper for lab view mode.
+ * Components should use: `labViewMode = toggleLabViewMode(labViewMode)`.
+ */
+export function toggleLabViewMode(current: LabViewMode): LabViewMode {
+  return current === 'lab' ? 'step' : 'lab';
+}
+
+/**
  * Helper to select time columns (week/day, minutes or hours+minutes)
  * so that CalendarGrid and CourseSummaryGrid share the same logic.
  */
@@ -346,8 +357,31 @@ export function selectTimeColumns<T>(
   }
 }
 
-/** Return distinct sorted lab IDs (lo_id) from learning records, excluding null values. */
-export function getDistinctLabs(records: LearningRecord[]): string[] {
+/**
+ * Extract lab identifier from lo_id.
+ * Labs are identified by the segment (string between '/' and '/') that starts with "book".
+ * Returns the segment that starts with "book".
+ * Example: "path/to/book-1/step-1" -> "book-1"
+ *          "lab1/book-2/step-2" -> "book-2"
+ *          "prefix/book-5/suffix" -> "book-5"
+ */
+export function extractLabIdentifier(loId: string): string {
+  // Split by '/' to get segments
+  const segments = loId.split('/');
+  
+  // Find the segment that starts with "book"
+  for (const segment of segments) {
+    if (segment.trim().toLowerCase().startsWith('book')) {
+      return segment.trim();
+    }
+  }
+  
+  // No "book" segment found, return the entire lo_id as fallback
+  return loId;
+}
+
+/** Return distinct sorted lab step IDs (lo_id) from learning records, excluding null values. */
+export function getDistinctLabSteps(records: LearningRecord[]): string[] {
   return Array.from(
     new Set(
       records
@@ -357,12 +391,25 @@ export function getDistinctLabs(records: LearningRecord[]): string[] {
   ).sort();
 }
 
+/** Return distinct sorted lab identifiers (aggregated from lo_id) from learning records, excluding null values. */
+export function getDistinctLabs(records: LearningRecord[]): string[] {
+  return Array.from(
+    new Set(
+      records
+        .map((r) => r.lo_id)
+        .filter((lo_id): lo_id is string => lo_id !== null && lo_id !== undefined)
+        .map(extractLabIdentifier)
+    )
+  ).sort();
+}
+
 /**
  * Build pivoted per-student rows for LabsGrid.
- * Each row has studentid, totalMinutes, and a column per lab (lo_id).
- * Aggregates duration values for each (student_id, lo_id) combination.
+ * Each row has studentid, totalMinutes, and a column per lab or step (depending on viewMode).
+ * - 'step' mode: Aggregates duration values for each (student_id, lo_id) combination.
+ * - 'lab' mode: Aggregates duration values for each (student_id, lab_identifier) combination.
  */
-export function buildLabsPivotedRows(records: LearningRecord[]): LabsPivotedRow[] {
+export function buildLabsPivotedRows(records: LearningRecord[], viewMode: LabViewMode = 'step'): LabsPivotedRow[] {
   // Filter out records with null lo_id
   const validRecords = records.filter((r) => r.lo_id !== null && r.lo_id !== undefined);
   
@@ -371,13 +418,20 @@ export function buildLabsPivotedRows(records: LearningRecord[]): LabsPivotedRow[
   }
 
   const students = Array.from(new Set(validRecords.map((r) => r.student_id))).sort();
-  const labs = getDistinctLabs(validRecords);
   
-  // Map to aggregate duration by (student_id, lo_id)
+  // Get distinct columns based on view mode
+  const columns = viewMode === 'lab' 
+    ? getDistinctLabs(validRecords)
+    : getDistinctLabSteps(validRecords);
+  
+  // Map to aggregate duration by (student_id, column_key)
   const map = new Map<string, number>();
   
   for (const record of validRecords) {
-    const key = `${record.student_id}\t${record.lo_id}`;
+    const columnKey = viewMode === 'lab' 
+      ? extractLabIdentifier(record.lo_id!)
+      : record.lo_id!;
+    const key = `${record.student_id}\t${columnKey}`;
     const duration = record.duration ?? 0;
     map.set(key, (map.get(key) ?? 0) + duration);
   }
@@ -387,9 +441,9 @@ export function buildLabsPivotedRows(records: LearningRecord[]): LabsPivotedRow[
     let totalMinutes = 0;
     const row: LabsPivotedRow = { studentid, totalMinutes: 0 };
     
-    for (const labId of labs) {
-      const blocks = map.get(`${studentid}\t${labId}`) ?? 0;
-      row[labId] = blocks;
+    for (const columnId of columns) {
+      const blocks = map.get(`${studentid}\t${columnId}`) ?? 0;
+      row[columnId] = blocks;
       totalMinutes += blocks;
     }
     
@@ -399,10 +453,10 @@ export function buildLabsPivotedRows(records: LearningRecord[]): LabsPivotedRow[
 }
 
 /** Column definitions for lab columns with shared styling/formatting. */
-export function buildLabColumns<T = any>(labIds: string[]): ColDef<T>[] {
+export function buildLabColumns<T = any>(labIds: string[], useLabIdentifierForHeader: boolean = false): ColDef<T>[] {
   return labIds.map((labId) => ({
     field: labId as any,
-    headerName: labId,
+    headerName: useLabIdentifierForHeader ? extractLabIdentifier(labId) : labId,
     headerClass: 'ag-header-vertical',
     valueFormatter: (p) =>
       p.value != null && Number(p.value) > 0

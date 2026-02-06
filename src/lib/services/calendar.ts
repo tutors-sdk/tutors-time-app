@@ -1,52 +1,14 @@
 import { getSupabase } from "./supabase";
-import type { CalendarEntry, TutorsConnectCourse, TutorsConnectUser, CourseCalendar, LearningRecord } from "../types";
+import type { CalendarEntry, CourseCalendar, LearningRecord } from "../types";
 
+/**
+ * @deprecated Use TutorsStore.getCalendarData instead.
+ * This function is kept for backward compatibility but delegates to TutorsStore.
+ */
 export async function getCalendarData(courseid?: string): Promise<CalendarEntry[]> {
-  const supabase = getSupabase();
-  let query = supabase.from("calendar").select("*").order("id", { ascending: true });
-
-  if (courseid) {
-    query = query.eq("courseid", courseid);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(`Failed to fetch calendar data: ${error.message}`);
-  }
-
-  const entries: CalendarEntry[] = (data as CalendarEntry[]) ?? [];
-
-  // Look up student full names by studentid (github_id in tutors-connect-users)
-  const studentIds = Array.from(new Set(entries.map((e) => e.studentid).filter(Boolean)));
-  if (!studentIds.length) {
-    return entries;
-  }
-
-  const { data: userRows, error: userError } = await supabase
-    .from("tutors-connect-users")
-    .select("github_id, full_name")
-    .in("github_id", studentIds);
-
-  if (userError) {
-    // If lookup fails, fall back to raw student IDs
-    return entries;
-  }
-
-  const nameMap: Record<string, string> = {};
-  for (const row of (userRows ?? []) as TutorsConnectUser[]) {
-    const key = row.github_id?.trim();
-    if (!key) continue;
-    const displayName =
-      row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
-    nameMap[key] = displayName;
-  }
-
-  // Replace studentid with the full name (or leave as-is if no match)
-  return entries.map((entry) => ({
-    ...entry,
-    studentid: nameMap[entry.studentid] ?? entry.studentid,
-  }));
+  // Import TutorsStore here to avoid circular dependency at module level
+  const { TutorsStore } = await import("./TutorsStore");
+  return TutorsStore.getCalendarData(courseid);
 }
 
 /** Filter calendar entries by date range. */
@@ -67,46 +29,6 @@ export function filterByDateRange(entries: CalendarEntry[], startDate: string | 
   });
 }
 
-/**
- * Lookup course titles from tutors-connect-courses table.
- * Returns a map from course_id -> title (or course_id if title not found).
- */
-async function getCourseTitles(courseIds: string[]): Promise<Record<string, string>> {
-  const uniqueIds = Array.from(new Set(courseIds.map((id) => id.trim()).filter(Boolean)));
-  if (!uniqueIds.length) {
-    return {};
-  }
-
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("tutors-connect-courses")
-    .select("course_id, course_record")
-    .in("course_id", uniqueIds);
-
-  if (error) {
-    // On error, fall back to using course IDs as titles
-    return {};
-  }
-
-  const titleMap: Record<string, string> = {};
-  for (const row of (data ?? []) as TutorsConnectCourse[]) {
-    const courseId = row.course_id?.trim();
-    if (!courseId) continue;
-    
-    // Extract title from course_record JSON, fallback to course_id
-    const title = row.course_record?.title?.trim() || courseId;
-    titleMap[courseId] = title;
-  }
-
-  // Ensure all requested IDs have at least a fallback
-  for (const id of uniqueIds) {
-    if (!titleMap[id]) {
-      titleMap[id] = id;
-    }
-  }
-
-  return titleMap;
-}
 
 /** Load calendar data for multiple courses with date filtering. */
 export async function loadCalendarDataForCourses(courseIds: string[], startDate: string | null, endDate: string | null): Promise<CourseCalendar[]> {
@@ -116,8 +38,9 @@ export async function loadCalendarDataForCourses(courseIds: string[], startDate:
     throw new Error("At least one course ID is required");
   }
 
-  // Lookup course titles from tutors-connect-courses table
-  const titleMap = await getCourseTitles(uniqueIds);
+  // Lookup course titles from tutors-connect-courses table using TutorsStore
+  const { TutorsStore } = await import("./TutorsStore");
+  const titleMap = await TutorsStore.getCourseTitles(uniqueIds);
 
   // Initialize per-course state with titles
   const courses: CourseCalendar[] = uniqueIds.map((id) => ({
@@ -135,52 +58,15 @@ export async function loadCalendarDataForCourses(courseIds: string[], startDate:
   const results = await Promise.allSettled(
     uniqueIds.map(async (id) => {
       try {
-        const rawData = await getCalendarData(id);
+        // Use TutorsStore to fetch calendar data
+        const rawData = await TutorsStore.getCalendarData(id);
         const filteredData = filterByDateRange(rawData, startDate, endDate);
         
-        // Load learning records for this course
+        // Load learning records for this course using TutorsStore
         let learningRecords: LearningRecord[] = [];
         let learningRecordsError: string | null = null;
         try {
-          const supabase = getSupabase();
-          const { data, error } = await supabase
-            .from("learning_records")
-            .select("*")
-            .eq("course_id", id)
-            .eq("type", "lab")
-            .order("date_last_accessed", { ascending: false });
-          
-          if (error) {
-            learningRecordsError = error.message;
-          } else {
-            learningRecords = (data as LearningRecord[]) ?? [];
-            
-            // Enrich learning records with student full names (similar to calendar entries)
-            const studentIds = Array.from(new Set(learningRecords.map((r) => r.student_id).filter(Boolean)));
-            if (studentIds.length > 0) {
-              const { data: userRows, error: userError } = await supabase
-                .from("tutors-connect-users")
-                .select("github_id, full_name")
-                .in("github_id", studentIds);
-
-              if (!userError && userRows) {
-                const nameMap: Record<string, string> = {};
-                for (const row of userRows as TutorsConnectUser[]) {
-                  const key = row.github_id?.trim();
-                  if (!key) continue;
-                  const displayName =
-                    row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
-                  nameMap[key] = displayName;
-                }
-
-                // Replace student_id with the full name (or leave as-is if no match)
-                learningRecords = learningRecords.map((record) => ({
-                  ...record,
-                  student_id: nameMap[record.student_id] ?? record.student_id,
-                }));
-              }
-            }
-          }
+          learningRecords = await TutorsStore.getAllLearningRecordsForCourse(id);
         } catch (e) {
           learningRecordsError = e instanceof Error ? e.message : "Failed to load learning records";
         }

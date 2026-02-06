@@ -2,12 +2,16 @@
   import { createGrid, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
   import type { ColDef, GridApi } from "ag-grid-community";
   import type { LearningRecord } from "$lib/types";
+  import LabViewModeToggle from "$lib/ui/LabViewModeToggle.svelte";
   import {
     getDistinctLabs,
+    getDistinctLabSteps,
     buildLabsPivotedRows,
     buildLabColumns,
     buildTotalMinutesColumn,
-    type LabsPivotedRow
+    toggleLabViewMode,
+    type LabsPivotedRow,
+    type LabViewMode
   } from "$lib/services/calendarUtils";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
@@ -22,12 +26,29 @@
 
   let gridContainer = $state<HTMLDivElement | null>(null);
   let gridApi = $state<GridApi<LabsPivotedRow> | null>(null);
+  let labViewMode = $state<LabViewMode>("step");
 
-  const labs = $derived(getDistinctLabs(data));
-  const pivotedRowData = $derived(buildLabsPivotedRows(data));
+  // Sort records by lo_id alphabetically, then filter out records that don't have a segment starting with "book"
+  const filteredData = $derived(
+    [...data]
+      .sort((a, b) => {
+        const aId = a.lo_id || '';
+        const bId = b.lo_id || '';
+        return aId.localeCompare(bId);
+      })
+      .filter((record) => {
+        if (!record.lo_id) return false;
+        const segments = record.lo_id.split('/');
+        return segments.some((segment) => segment.trim().toLowerCase().startsWith('book'));
+      })
+  );
+
+  const labs = $derived(labViewMode === 'lab' ? getDistinctLabs(filteredData) : getDistinctLabSteps(filteredData));
+  const pivotedRowData = $derived(buildLabsPivotedRows(filteredData, labViewMode));
 
   const columnDefs = $derived.by((): ColDef<LabsPivotedRow>[] => {
-    const labColumns = buildLabColumns<LabsPivotedRow>(labs);
+    // In step mode, extract lab identifier for header display; in lab mode, headers are already lab identifiers
+    const labColumns = buildLabColumns<LabsPivotedRow>(labs, labViewMode === 'step');
     const cols: ColDef<LabsPivotedRow>[] = [
       { 
         field: "studentid", 
@@ -53,7 +74,7 @@
       defaultColDef: { sortable: true, resizable: true },
       domLayout: "normal",
       suppressNoRowsOverlay: false,
-      headerHeight: 72
+      headerHeight: 170
     });
     gridApi = api;
     return () => {
@@ -86,7 +107,10 @@
     <p class="text-lg text-surface-600">No lab data available</p>
   </div>
 {:else}
-  <div class="ag-theme-quartz grid-fill-container min-h-0 flex-1" role="grid" aria-label="Lab duration by student">
-    <div bind:this={gridContainer} class="grid-fill-container"></div>
+  <div class="flex h-full flex-col gap-2">
+    <LabViewModeToggle viewMode={labViewMode} onToggle={() => { labViewMode = toggleLabViewMode(labViewMode); }} />
+    <div class="ag-theme-quartz grid-fill-container min-h-0 flex-1" role="grid" aria-label="Lab duration by student">
+      <div bind:this={gridContainer} class="grid-fill-container"></div>
+    </div>
   </div>
 {/if}
