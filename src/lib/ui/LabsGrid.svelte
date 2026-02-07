@@ -12,7 +12,7 @@
     toggleLabViewMode,
     type LabsPivotedRow,
     type LabViewMode
-  } from "$lib/services/calendarUtils";
+  } from "$lib/services/learningRecordUtils";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 

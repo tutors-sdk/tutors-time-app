@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { LabViewMode } from '$lib/services/calendarUtils';
+  import type { LabViewMode } from '$lib/services/learningRecordUtils';
 
   interface Props {
     viewMode: LabViewMode;
