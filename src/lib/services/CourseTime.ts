@@ -1,4 +1,5 @@
 import type { CourseCalendar, LearningRecord, CalendarEntry } from "../types";
+import { CalendarModel } from "./CalendarModel";
 import { filterByDateRange } from "./calendarUtils";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectCourse, TutorsConnectUser } from "$lib/types";
@@ -42,7 +43,8 @@ export const CourseTime = {
         error: null,
         learningRecords,
         learningRecordsLoading: false,
-        learningRecordsError
+        learningRecordsError,
+        calendarModel: new CalendarModel(filteredData, false, null)
       };
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load calendar data";
@@ -54,7 +56,8 @@ export const CourseTime = {
         error: msg,
         learningRecords: [],
         learningRecordsLoading: false,
-        learningRecordsError: msg
+        learningRecordsError: msg,
+        calendarModel: new CalendarModel([], false, msg)
       };
     }
 

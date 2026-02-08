@@ -38,6 +38,8 @@ export interface LearningRecord {
   type: string | null; // text null
 }
 
+import type { CalendarModel } from "$lib/services/CalendarModel";
+
 // Aggregated per-course calendar view used by the grids
 export type CourseCalendar = {
   id: string; // original course ID
@@ -48,6 +50,8 @@ export type CourseCalendar = {
   learningRecords: LearningRecord[];
   learningRecordsLoading: boolean;
   learningRecordsError: string | null;
+  /** Prepared day/week/summary views for calendar grids. Initialised in loadCalendar. */
+  calendarModel: CalendarModel;
 };
 
 
