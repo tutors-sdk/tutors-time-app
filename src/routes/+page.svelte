@@ -9,7 +9,7 @@
   let dialogOpen = $state(true);
   let dialogLoading = $state(false);
   let dialogError = $state<string | null>(null);
-  let activeTab = $state<"raw" | "calendar" | "summary" | "learning" | "labs" | null>(null);
+  let activeTab = $state<"week" | "day" | "summaryDay" | "summaryWeek" | "raw" | "learning" | "labs" | null>(null);
 
   async function handleLoadCourse(courseId: string, startDate: string | null, endDate: string | null) {
     dialogError = null;
@@ -18,7 +18,7 @@
       const loaded = await CourseTime.loadCalendar(courseId, startDate, endDate);
       course = loaded;
       courseIdForDialog = loaded.id;
-      activeTab = "calendar";
+      activeTab = "week";
       dialogOpen = false;
     } catch (e) {
       dialogError = e instanceof Error ? e.message : "Failed to load calendar data";
