@@ -1,20 +1,24 @@
 import type { CourseCalendar, LearningRecord, CalendarEntry } from "../types";
-import { loadCalendarDataForCourses } from "./calendar";
+import { loadCalendarDataForCourse } from "./calendar";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectCourse, TutorsConnectUser } from "$lib/types";
 
 export const TutorsStore = {
+  /** Loaded calendar data for the current course. Updated when loadCalendar is called. */
+  CourseData: null as CourseCalendar | null,
+
   /**
-   * Load calendar data for one or more courses and a date range.
-   * Delegates to the existing calendar service and returns the CourseCalendar[]
-   * shape expected by the grids.
+   * Load calendar data for a single course and date range.
+   * Stores the result in CourseData and returns it.
    */
   async loadCalendar(
-    courseIds: string[],
+    courseId: string,
     startDate: string | null,
     endDate: string | null
-  ): Promise<CourseCalendar[]> {
-    return loadCalendarDataForCourses(courseIds, startDate, endDate);
+  ): Promise<CourseCalendar> {
+    const course = await loadCalendarDataForCourse(courseId, startDate, endDate);
+    TutorsStore.CourseData = course;
+    return course;
   },
 
   /**
@@ -23,11 +27,7 @@ export const TutorsStore = {
    */
   async getCourseTitle(courseId: string): Promise<string> {
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from("tutors-connect-courses")
-      .select("course_id, course_record")
-      .eq("course_id", courseId)
-      .maybeSingle();
+    const { data, error } = await supabase.from("tutors-connect-courses").select("course_id, course_record").eq("course_id", courseId).maybeSingle();
 
     if (error || !data) {
       return courseId;
@@ -44,18 +44,9 @@ export const TutorsStore = {
    * Filters by student_id, course_id, and type (all required).
    * Returns an empty array if no records are found or on error.
    */
-  async getLearningRecords(
-    studentId: string,
-    courseId: string,
-    type: string
-  ): Promise<LearningRecord[]> {
+  async getLearningRecords(studentId: string, courseId: string, type: string): Promise<LearningRecord[]> {
     const supabase = getSupabase();
-    let query = supabase
-      .from("learning_records")
-      .select("*")
-      .eq("student_id", studentId)
-      .eq("course_id", courseId)
-      .eq("type", type);
+    let query = supabase.from("learning_records").select("*").eq("student_id", studentId).eq("course_id", courseId).eq("type", type);
 
     const { data, error } = await query;
 
@@ -94,10 +85,7 @@ export const TutorsStore = {
       return entries;
     }
 
-    const { data: userRows, error: userError } = await supabase
-      .from("tutors-connect-users")
-      .select("github_id, full_name")
-      .in("github_id", studentIds);
+    const { data: userRows, error: userError } = await supabase.from("tutors-connect-users").select("github_id, full_name").in("github_id", studentIds);
 
     if (userError) {
       // If lookup fails, fall back to raw student IDs
@@ -108,15 +96,14 @@ export const TutorsStore = {
     for (const row of (userRows ?? []) as TutorsConnectUser[]) {
       const key = row.github_id?.trim();
       if (!key) continue;
-      const displayName =
-        row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
+      const displayName = row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
       nameMap[key] = displayName;
     }
 
     // Replace studentid with the full name (or leave as-is if no match)
     return entries.map((entry) => ({
       ...entry,
-      studentid: nameMap[entry.studentid] ?? entry.studentid,
+      studentid: nameMap[entry.studentid] ?? entry.studentid
     }));
   },
 
@@ -131,10 +118,7 @@ export const TutorsStore = {
     }
 
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from("tutors-connect-courses")
-      .select("course_id, course_record")
-      .in("course_id", uniqueIds);
+    const { data, error } = await supabase.from("tutors-connect-courses").select("course_id, course_record").in("course_id", uniqueIds);
 
     if (error) {
       // On error, fall back to using course IDs as titles
@@ -145,7 +129,7 @@ export const TutorsStore = {
     for (const row of (data ?? []) as TutorsConnectCourse[]) {
       const courseId = row.course_id?.trim();
       if (!courseId) continue;
-      
+
       // Extract title from course_record JSON, fallback to course_id
       const title = row.course_record?.title?.trim() || courseId;
       titleMap[courseId] = title;
@@ -168,12 +152,7 @@ export const TutorsStore = {
    */
   async getAllLearningRecordsForCourse(courseId: string): Promise<LearningRecord[]> {
     const supabase = getSupabase();
-    let query = supabase
-      .from("learning_records")
-      .select("*")
-      .eq("course_id", courseId)
-      .eq("type", "lab")
-      .order("date_last_accessed", { ascending: false });
+    let query = supabase.from("learning_records").select("*").eq("course_id", courseId).eq("type", "lab").order("date_last_accessed", { ascending: false });
 
     const { data, error } = await query;
 
@@ -185,40 +164,36 @@ export const TutorsStore = {
 
     // Sort learning records: primary key by student_id, secondary key by lo_id
     learningRecords.sort((a, b) => {
-      const aStudentId = a.student_id || '';
-      const bStudentId = b.student_id || '';
+      const aStudentId = a.student_id || "";
+      const bStudentId = b.student_id || "";
       const studentCompare = aStudentId.localeCompare(bStudentId);
       if (studentCompare !== 0) {
         return studentCompare;
       }
       // If student_id is the same, sort by lo_id
-      const aLoId = a.lo_id || '';
-      const bLoId = b.lo_id || '';
+      const aLoId = a.lo_id || "";
+      const bLoId = b.lo_id || "";
       return aLoId.localeCompare(bLoId);
     });
 
     // Enrich learning records with student full names (similar to calendar entries)
     const studentIds = Array.from(new Set(learningRecords.map((r) => r.student_id).filter(Boolean)));
     if (studentIds.length > 0) {
-      const { data: userRows, error: userError } = await supabase
-        .from("tutors-connect-users")
-        .select("github_id, full_name")
-        .in("github_id", studentIds);
+      const { data: userRows, error: userError } = await supabase.from("tutors-connect-users").select("github_id, full_name").in("github_id", studentIds);
 
       if (!userError && userRows) {
         const nameMap: Record<string, string> = {};
         for (const row of userRows as TutorsConnectUser[]) {
           const key = row.github_id?.trim();
           if (!key) continue;
-          const displayName =
-            row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
+          const displayName = row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
           nameMap[key] = displayName;
         }
 
         // Replace student_id with the full name (or leave as-is if no match)
         learningRecords = learningRecords.map((record) => ({
           ...record,
-          student_id: nameMap[record.student_id] ?? record.student_id,
+          student_id: nameMap[record.student_id] ?? record.student_id
         }));
       }
     }
@@ -226,4 +201,3 @@ export const TutorsStore = {
     return learningRecords;
   }
 };
-

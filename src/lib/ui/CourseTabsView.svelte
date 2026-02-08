@@ -58,7 +58,7 @@
     </Tabs>
   {:else}
     <div class="flex items-center justify-center flex-1">
-      <p class="text-lg text-surface-600">Please select a course from the list</p>
+      <p class="text-lg text-surface-600">No course loaded</p>
     </div>
   {/if}
 </main>

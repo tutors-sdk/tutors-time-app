@@ -3,7 +3,7 @@
 
   interface Props {
     open: boolean;
-    /** Last used / primary course ID (used to seed multi-input) */
+    /** Current or last loaded course ID (used to seed the input) */
     courseId: string | null;
     /** Overall loading flag while (re)loading courses */
     loading: boolean;
@@ -12,9 +12,9 @@
   }
 
   type Events = {
-    /** One or more course IDs submitted from the dialog */
-    submit: { 
-      courseIds: string[];
+    /** Single course ID and optional date range submitted from the dialog */
+    submit: {
+      courseId: string;
       startDate: string | null;
       endDate: string | null;
     };
@@ -26,8 +26,7 @@
 
   const dispatch = createEventDispatcher<Events>();
 
-  // Multi-course input: one course ID per line
-  let courseIdsInput = $state('');
+  let courseIdsInput = $state("");
   let startDateInput = $state('');
   let endDateInput = $state('');
   let dateRangeError = $state<string | null>(null);
@@ -91,32 +90,23 @@
   });
 
   function handleSubmit() {
-    const ids = courseIdsInput
-      .split(/\r?\n/)
-      .map((line) => extractCourseIdFromInput(line))
-      .filter(Boolean);
+    const firstLine = courseIdsInput.split(/\r?\n/)[0]?.trim() ?? "";
+    const courseId = firstLine ? extractCourseIdFromInput(firstLine) : "";
 
-    const uniqueIds = Array.from(new Set(ids));
-
-    if (!uniqueIds.length) {
+    if (!courseId) {
       return;
     }
 
-    // Validate date range
     const startDate = startDateInput.trim() || null;
     const endDate = endDateInput.trim() || null;
-    
+
     if (startDate && endDate && startDate > endDate) {
-      dateRangeError = 'Start date must be before or equal to end date';
+      dateRangeError = "Start date must be before or equal to end date";
       return;
     }
 
     dateRangeError = null;
-    dispatch('submit', { 
-      courseIds: uniqueIds,
-      startDate,
-      endDate
-    });
+    dispatch("submit", { courseId, startDate, endDate });
   }
 
   function handleClose() {
@@ -131,20 +121,20 @@
   onclose={handleClose}
 >
   <div class="card bg-surface-100-900 w-full max-w-md p-6 space-y-4 shadow-xl m-auto">
-    <h2 class="text-2xl font-bold">Select Course IDs</h2>
+    <h2 class="text-2xl font-bold">Select Course</h2>
     <p class="text-surface-600">
-      Enter one or more course IDs to view calendar data. Use one course ID per line. Optionally select a date range to filter the data.
+      Enter a course ID to view calendar data. Optionally select a date range to filter the data.
     </p>
     <div class="space-y-4">
       <div>
-        <label for="courseids-input" class="label">Course IDs</label>
-        <textarea
+        <label for="courseids-input" class="label">Course ID</label>
+        <input
           id="courseids-input"
+          type="text"
           bind:value={courseIdsInput}
-          placeholder="Enter one course ID per line"
-          class="textarea"
-          rows={4}
-        ></textarea>
+          placeholder="Enter course ID"
+          class="input w-full"
+        />
         {#if error && open}
           <p class="text-sm text-error-500 mt-1">{error}</p>
         {/if}
