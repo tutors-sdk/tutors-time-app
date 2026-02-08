@@ -3,7 +3,7 @@ import { filterByDateRange } from "./calendarUtils";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectCourse, TutorsConnectUser } from "$lib/types";
 
-export const TutorsStore = {
+export const CourseTime = {
   /** Loaded calendar data for the current course. Updated when loadCalendar is called. */
   CourseData: null as CourseCalendar | null,
 
@@ -16,8 +16,8 @@ export const TutorsStore = {
     startDate: string | null,
     endDate: string | null
   ): Promise<CourseCalendar> {
-    const course = await TutorsStore.loadCalendarDataForCourse(courseId, startDate, endDate);
-    TutorsStore.CourseData = course;
+    const course = await CourseTime.loadCalendarDataForCourse(courseId, startDate, endDate);
+    CourseTime.CourseData = course;
     return course;
   },
 
@@ -33,17 +33,17 @@ export const TutorsStore = {
     const id = courseId.trim();
     if (!id) throw new Error("Course ID is required");
 
-    const titleMap = await TutorsStore.getCourseTitles([id]);
+    const titleMap = await CourseTime.getCourseTitles([id]);
     const title = titleMap[id] || id;
 
     try {
-      const rawData = await TutorsStore.getCalendarData(id);
+      const rawData = await CourseTime.getCalendarData(id);
       const filteredData = filterByDateRange(rawData, startDate, endDate);
 
       let learningRecords: LearningRecord[] = [];
       let learningRecordsError: string | null = null;
       try {
-        learningRecords = await TutorsStore.getAllLearningRecordsForCourse(id);
+        learningRecords = await CourseTime.getAllLearningRecordsForCourse(id);
       } catch (e) {
         learningRecordsError = e instanceof Error ? e.message : "Failed to load learning records";
       }

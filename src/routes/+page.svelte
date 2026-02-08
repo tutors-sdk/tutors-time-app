@@ -1,7 +1,7 @@
 <script lang="ts">
   import CourseIdDialog from "$lib/ui/CourseIdDialog.svelte";
   import CourseTabsView from "$lib/ui/CourseTabsView.svelte";
-  import { TutorsStore } from "$lib/services/TutorsStore";
+  import { CourseTime } from "$lib/services/CourseTime";
   import type { CourseCalendar } from "$lib/types";
 
   let course = $state<CourseCalendar | null>(null);
@@ -15,7 +15,7 @@
     dialogError = null;
     dialogLoading = true;
     try {
-      const loaded = await TutorsStore.loadCalendar(courseId, startDate, endDate);
+      const loaded = await CourseTime.loadCalendar(courseId, startDate, endDate);
       course = loaded;
       courseIdForDialog = loaded.id;
       activeTab = "calendar";
