@@ -1,5 +1,5 @@
 import type { CourseCalendar, LearningRecord, CalendarEntry } from "../types";
-import { loadCalendarDataForCourse } from "./calendar";
+import { filterByDateRange } from "./calendarUtils";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectCourse, TutorsConnectUser } from "$lib/types";
 
@@ -16,9 +16,61 @@ export const TutorsStore = {
     startDate: string | null,
     endDate: string | null
   ): Promise<CourseCalendar> {
-    const course = await loadCalendarDataForCourse(courseId, startDate, endDate);
+    const course = await TutorsStore.loadCalendarDataForCourse(courseId, startDate, endDate);
     TutorsStore.CourseData = course;
     return course;
+  },
+
+  /**
+   * Load calendar data for a single course with optional date filtering.
+   * Does not update CourseData; use loadCalendar for that.
+   */
+  async loadCalendarDataForCourse(
+    courseId: string,
+    startDate: string | null,
+    endDate: string | null
+  ): Promise<CourseCalendar> {
+    const id = courseId.trim();
+    if (!id) throw new Error("Course ID is required");
+
+    const titleMap = await TutorsStore.getCourseTitles([id]);
+    const title = titleMap[id] || id;
+
+    try {
+      const rawData = await TutorsStore.getCalendarData(id);
+      const filteredData = filterByDateRange(rawData, startDate, endDate);
+
+      let learningRecords: LearningRecord[] = [];
+      let learningRecordsError: string | null = null;
+      try {
+        learningRecords = await TutorsStore.getAllLearningRecordsForCourse(id);
+      } catch (e) {
+        learningRecordsError = e instanceof Error ? e.message : "Failed to load learning records";
+      }
+
+      return {
+        id,
+        title,
+        data: filteredData,
+        loading: false,
+        error: null,
+        learningRecords,
+        learningRecordsLoading: false,
+        learningRecordsError
+      };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Failed to load calendar data";
+      return {
+        id,
+        title,
+        data: [],
+        loading: false,
+        error: msg,
+        learningRecords: [],
+        learningRecordsLoading: false,
+        learningRecordsError: msg
+      };
+    }
   },
 
   /**

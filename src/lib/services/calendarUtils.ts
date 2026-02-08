@@ -8,6 +8,21 @@ export type ViewMode = "week" | "day";
 export type PivotedRow = { studentid: string; totalSeconds: number; [key: string]: string | number };
 export type SummaryRow = { courseid: string; totalSeconds: number; [key: string]: string | number };
 
+/** Filter calendar entries by date range (inclusive). */
+export function filterByDateRange(
+  entries: CalendarEntry[],
+  startDate: string | null,
+  endDate: string | null
+): CalendarEntry[] {
+  if (!startDate && !endDate) return entries;
+  return entries.filter((entry) => {
+    const entryDate = entry.id;
+    if (startDate && entryDate < startDate) return false;
+    if (endDate && entryDate > endDate) return false;
+    return true;
+  });
+}
+
 /** Return distinct sorted dates (ids) from calendar entries. */
 export function getDistinctSortedDates(entries: CalendarEntry[]): string[] {
   return Array.from(new Set(entries.map((e) => e.id))).sort();
