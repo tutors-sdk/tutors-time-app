@@ -10,7 +10,6 @@
     | "week"
     | "day"
     | "summaryDay"
-    | "summaryWeek"
     | "medianByWeek"
     | "raw"
     | "learning"
@@ -35,7 +34,6 @@
         <Tabs.Trigger value="week">By week</Tabs.Trigger>
         <Tabs.Trigger value="day">By day</Tabs.Trigger>
         <Tabs.Trigger value="summaryDay">Median by day</Tabs.Trigger>
-        <Tabs.Trigger value="summaryWeek">Summary by week</Tabs.Trigger>
         <Tabs.Trigger value="medianByWeek">Median by week</Tabs.Trigger>
         <Tabs.Trigger value="raw">Raw Calendar</Tabs.Trigger>
         <Tabs.Trigger value="learning">Lab Learning Records</Tabs.Trigger>
@@ -61,13 +59,6 @@
         <div class="summary-tab-viewport h-full">
           {#if calendarModel}
             <CalendarGrid model={calendarModel} mode="day" variant="summary" />
-          {/if}
-        </div>
-      </Tabs.Content>
-      <Tabs.Content value="summaryWeek" class="flex-1 min-h-0">
-        <div class="summary-tab-viewport h-full">
-          {#if calendarModel}
-            <CalendarGrid model={calendarModel} mode="week" variant="summary" />
           {/if}
         </div>
       </Tabs.Content>

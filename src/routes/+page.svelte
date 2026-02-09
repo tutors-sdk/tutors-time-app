@@ -9,7 +9,7 @@
   let dialogOpen = $state(true);
   let dialogLoading = $state(false);
   let dialogError = $state<string | null>(null);
-  let activeTab = $state<"week" | "day" | "summaryDay" | "summaryWeek" | "medianByWeek" | "raw" | "learning" | "labs" | null>(null);
+  let activeTab = $state<"week" | "day" | "summaryDay" | "medianByWeek" | "raw" | "learning" | "labs" | null>(null);
 
   async function handleLoadCourse(courseId: string, startDate: string | null, endDate: string | null) {
     dialogError = null;
