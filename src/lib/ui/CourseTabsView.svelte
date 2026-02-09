@@ -2,12 +2,19 @@
   import { Tabs } from "@skeletonlabs/skeleton-svelte";
   import CalendarTable from "$lib/ui/CalendarTable.svelte";
   import CalendarGrid from "$lib/components/calendar/CalendarGrid.svelte";
-  import CalendarSummaryGrid from "$lib/components/calendar/CalendarSummaryGrid.svelte";
   import LearningRecordsTable from "$lib/ui/LearningRecordsTable.svelte";
   import LabsGrid from "$lib/components/labs/LabsGrid.svelte";
   import type { CourseCalendar } from "$lib/types";
 
-  type TabValue = "week" | "day" | "summaryDay" | "summaryWeek" | "raw" | "learning" | "labs";
+  type TabValue =
+    | "week"
+    | "day"
+    | "summaryDay"
+    | "summaryWeek"
+    | "raw"
+    | "learning"
+    | "labsStep"
+    | "labsLab";
 
   interface Props {
     selectedCourse: CourseCalendar | null;
@@ -30,7 +37,8 @@
         <Tabs.Trigger value="summaryWeek">Summary by week</Tabs.Trigger>
         <Tabs.Trigger value="raw">Raw Calendar</Tabs.Trigger>
         <Tabs.Trigger value="learning">Lab Learning Records</Tabs.Trigger>
-        <Tabs.Trigger value="labs">Labs</Tabs.Trigger>
+        <Tabs.Trigger value="labsStep">Labs by Step</Tabs.Trigger>
+        <Tabs.Trigger value="labsLab">Labs by Lab</Tabs.Trigger>
         <Tabs.Indicator />
       </Tabs.List>
       <Tabs.Content value="week" class="flex-1 min-h-0">
@@ -50,14 +58,14 @@
       <Tabs.Content value="summaryDay" class="flex-1 min-h-0">
         <div class="summary-tab-viewport h-full">
           {#if calendarModel}
-            <CalendarSummaryGrid model={calendarModel} mode="day" />
+            <CalendarGrid model={calendarModel} mode="day" variant="summary" />
           {/if}
         </div>
       </Tabs.Content>
       <Tabs.Content value="summaryWeek" class="flex-1 min-h-0">
         <div class="summary-tab-viewport h-full">
           {#if calendarModel}
-            <CalendarSummaryGrid model={calendarModel} mode="week" />
+            <CalendarGrid model={calendarModel} mode="week" variant="summary" />
           {/if}
         </div>
       </Tabs.Content>
@@ -71,10 +79,17 @@
           error={selectedCourse.learningRecordsError} 
         />
       </Tabs.Content>
-      <Tabs.Content value="labs" class="flex-1 min-h-0">
+      <Tabs.Content value="labsStep" class="flex-1 min-h-0">
         <div class="visual-tab-viewport h-full">
           {#if labsModel}
-            <LabsGrid model={labsModel} />
+            <LabsGrid model={labsModel} mode="step" />
+          {/if}
+        </div>
+      </Tabs.Content>
+      <Tabs.Content value="labsLab" class="flex-1 min-h-0">
+        <div class="visual-tab-viewport h-full">
+          {#if labsModel}
+            <LabsGrid model={labsModel} mode="lab" />
           {/if}
         </div>
       </Tabs.Content>
