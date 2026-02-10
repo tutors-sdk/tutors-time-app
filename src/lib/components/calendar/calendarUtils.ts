@@ -169,7 +169,8 @@ export function buildPerDateTimeColumns<T = any>(dates: string[]): ColDef<T>[] {
     field: d as any,
     headerName: formatDateShort(d),
     headerClass: "ag-header-vertical",
-    valueFormatter: (p) => (p.value != null && Number(p.value) > 0 ? formatTimeNearestMinute(Number(p.value)) : ""),
+    valueFormatter: (p) =>
+      p.value != null ? formatTimeNearestMinute(Number(p.value)) : "",
     cellClass: "ag-right-aligned-cell",
     cellStyle: (p) => ({
       backgroundColor: cellColorForMinutes(p.value as number),
@@ -187,7 +188,8 @@ export function buildPerDateTimeColumnsMinutesOnly<T = any>(dates: string[]): Co
     field: d as any,
     headerName: formatDateShort(d),
     headerClass: "ag-header-vertical",
-    valueFormatter: (p) => (p.value != null && Number(p.value) > 0 ? formatTimeMinutesOnly(Number(p.value)) : ""),
+    valueFormatter: (p) =>
+      p.value != null ? formatTimeMinutesOnly(Number(p.value)) : "",
     cellClass: "ag-right-aligned-cell",
     cellStyle: (p) => ({
       backgroundColor: cellColorForMinutes(p.value as number),
@@ -229,7 +231,8 @@ export function buildPerWeekTimeColumns<T = any>(weeks: string[]): ColDef<T>[] {
     field: weekMonday as any,
     headerName: formatDateShort(weekMonday),
     headerClass: "ag-header-vertical",
-    valueFormatter: (p) => (p.value != null && Number(p.value) > 0 ? formatTimeNearestMinute(Number(p.value)) : ""),
+    valueFormatter: (p) =>
+      p.value != null ? formatTimeNearestMinute(Number(p.value)) : "",
     cellClass: "ag-right-aligned-cell",
     cellStyle: (p) => ({
       backgroundColor: cellColorForMinutes(p.value as number),
@@ -247,7 +250,8 @@ export function buildPerWeekTimeColumnsMinutesOnly<T = any>(weeks: string[]): Co
     field: weekMonday as any,
     headerName: formatDateShort(weekMonday),
     headerClass: "ag-header-vertical",
-    valueFormatter: (p) => (p.value != null && Number(p.value) > 0 ? formatTimeMinutesOnly(Number(p.value)) : ""),
+    valueFormatter: (p) =>
+      p.value != null ? formatTimeMinutesOnly(Number(p.value)) : "",
     cellClass: "ag-right-aligned-cell",
     cellStyle: (p) => ({
       backgroundColor: cellColorForMinutes(p.value as number),

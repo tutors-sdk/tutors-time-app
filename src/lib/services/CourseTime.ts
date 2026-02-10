@@ -97,29 +97,44 @@ export const CourseTime = {
     try {
       const rawData = await CourseTime.getCalendarData(id);
       const filteredByDate = filterByDateRange(rawData, startDate, endDate);
-      const filteredData = filteredByDate.filter((entry) => entry.studentid === sid);
 
-      if (filteredData.length === 0) {
-        result = {
-          id,
-          studentId: sid,
-          title,
-          data: [],
-          loading: false,
-          error: null,
-          calendarModel: new CalendarModel([], false, null)
-        };
-      } else {
-        result = {
-          id,
-          studentId: sid,
-          title,
-          data: filteredData,
-          loading: false,
-          error: null,
-          calendarModel: new CalendarModel(filteredData, false, null)
-        };
+      // All course dates in range (used to keep columns aligned with course-level view)
+      const allDates = Array.from(new Set(filteredByDate.map((e) => e.id))).sort();
+
+      // Actual entries for this student
+      const studentEntries = filteredByDate.filter((entry) => entry.studentid === sid);
+
+      // Pad missing dates for this student with zero-duration entries
+      const displayName =
+        studentEntries[0]?.full_name != null && studentEntries[0].full_name.trim().length > 0
+          ? studentEntries[0].full_name
+          : sid;
+
+      const paddedEntries: CalendarEntry[] = [...studentEntries];
+
+      for (const date of allDates) {
+        const hasEntry = studentEntries.some((entry) => entry.id === date);
+        if (!hasEntry) {
+          paddedEntries.push({
+            id: date,
+            studentid: sid,
+            courseid: id,
+            timeactive: 0,
+            pageloads: 0,
+            full_name: displayName
+          });
+        }
       }
+
+      result = {
+        id,
+        studentId: sid,
+        title,
+        data: paddedEntries,
+        loading: false,
+        error: null,
+        calendarModel: new CalendarModel(paddedEntries, false, null)
+      };
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load calendar data";
       result = {
