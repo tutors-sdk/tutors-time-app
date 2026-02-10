@@ -1,9 +1,14 @@
-export interface CalendarEntry {
+export interface CalendarEntryBase {
   id: string; // DATE as string (YYYY-MM-DD format)
-  studentid: string;
+  studentid: string; // raw student identifier (e.g. github_id)
   courseid: string;
   timeactive: number; // BIGINT
   pageloads: number; // BIGINT
+}
+
+// Enriched calendar entry used by the app (includes student full name).
+export interface CalendarEntry extends CalendarEntryBase {
+  full_name: string; // display name from TutorsConnectUser (falls back to studentid when missing)
 }
 
 // Supabase `tutors-connect-courses` table model
@@ -60,7 +65,7 @@ export type CourseCalendar = {
 // Single-student calendar view for a given course
 export type StudentCalendar = {
   id: string; // course ID
-  studentId: string; // student identifier (matches CalendarEntry.studentid after enrichment)
+  studentId: string; // student identifier (matches CalendarEntry.studentid)
   title: string; // course display title
   data: CalendarEntry[];
   loading: boolean;
