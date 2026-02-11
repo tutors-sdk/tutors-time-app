@@ -16,7 +16,8 @@
     | "learning"
     | "labsStep"
     | "labsLab"
-    | "medianLabsDay";
+    | "medianLabsDay"
+    | "medianLabsWeek";
 
   interface Props {
     selectedCourse: CourseCalendar | null;
@@ -42,6 +43,7 @@
         <Tabs.Trigger value="labsStep">Labs by Step</Tabs.Trigger>
         <Tabs.Trigger value="labsLab">Labs by Lab</Tabs.Trigger>
         <Tabs.Trigger value="medianLabsDay">Median Lab by Step</Tabs.Trigger>
+        <Tabs.Trigger value="medianLabsWeek">Median Lab by Week</Tabs.Trigger>
         <Tabs.Indicator />
       </Tabs.List>
       <Tabs.Content value="week" class="flex-1 min-h-0">
@@ -99,7 +101,14 @@
       <Tabs.Content value="medianLabsDay" class="flex-1 min-h-0">
         <div class="summary-tab-viewport h-full">
           {#if labsModel}
-            <LabsMedianGrid model={labsModel} />
+            <LabsMedianGrid model={labsModel} mode="day" />
+          {/if}
+        </div>
+      </Tabs.Content>
+      <Tabs.Content value="medianLabsWeek" class="flex-1 min-h-0">
+        <div class="summary-tab-viewport h-full">
+          {#if labsModel}
+            <LabsMedianGrid model={labsModel} mode="week" />
           {/if}
         </div>
       </Tabs.Content>

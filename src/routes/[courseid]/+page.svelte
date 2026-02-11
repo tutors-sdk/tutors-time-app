@@ -8,7 +8,7 @@
   let course = $state<CourseCalendar | null>(null);
   let loading = $state(false);
   let error = $state<string | null>(null);
-  let activeTab = $state<"week" | "day" | "summaryDay" | "medianByWeek" | "raw" | "learning" | "labsStep" | "labsLab" | "medianLabsDay" | null>(null);
+  let activeTab = $state<"week" | "day" | "summaryDay" | "medianByWeek" | "raw" | "learning" | "labsStep" | "labsLab" | "medianLabsDay" | "medianLabsWeek" | null>(null);
   let lastLoadedCourseId = $state<string | null>(null);
 
   // Extract course ID from route params and auto-load

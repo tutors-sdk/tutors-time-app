@@ -7,6 +7,7 @@ import {
   buildLabColumns,
   buildTotalMinutesColumn,
   buildMedianByStep,
+  buildMedianByLab,
   type LabRow,
   type LabMedianRow
 } from "$lib/components/labs/labUtils";
@@ -31,6 +32,7 @@ export class LabsModel {
   readonly lab: LabsTable;
   readonly step: LabsTable;
   readonly medianByDay: LabsMedianTable;
+  readonly medianByWeek: LabsMedianTable;
   readonly loading: boolean;
   readonly error: string | null;
 
@@ -43,6 +45,7 @@ export class LabsModel {
     this.lab = this.buildLabView(filtered);
     this.step = this.buildStepView(filtered);
     this.medianByDay = this.buildMedianByDayView(filtered);
+    this.medianByWeek = this.buildMedianByWeekView(filtered);
   }
 
   private filterAndSortRecords(records: LearningRecord[]): LearningRecord[] {
@@ -105,6 +108,10 @@ export class LabsModel {
     return this.medianByDay.row != null;
   }
 
+  get hasMedianByWeek(): boolean {
+    return this.medianByWeek.row != null;
+  }
+
   private buildMedianByDayView(records: LearningRecord[]): LabsMedianTable {
     const steps = getDistinctLabSteps(records);
     const courseid = records.length > 0 ? records[0].course_id : "";
@@ -113,6 +120,20 @@ export class LabsModel {
     const columnDefs: ColDef<LabMedianRow>[] = [
       buildTotalMinutesColumn<LabMedianRow>("totalMinutes", "Total"),
       ...stepColumns
+    ];
+    return { row, columnDefs };
+  }
+
+  private buildMedianByWeekView(records: LearningRecord[]): LabsMedianTable {
+    const labs = getDistinctLabs(records);
+    const steps = getDistinctLabSteps(records);
+    const courseid = records.length > 0 ? records[0].course_id : "";
+    const medianByStepRow = this.medianByDay.row;
+    const row = buildMedianByLab(medianByStepRow, courseid, labs, steps);
+    const labColumns = buildLabColumns<LabMedianRow>(labs, "lab");
+    const columnDefs: ColDef<LabMedianRow>[] = [
+      buildTotalMinutesColumn<LabMedianRow>("totalMinutes", "Total"),
+      ...labColumns
     ];
     return { row, columnDefs };
   }

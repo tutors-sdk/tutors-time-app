@@ -241,6 +241,33 @@ export function buildMedianByDay(
   return row;
 }
 
+/** Build median row for lab-by-week view: sum of step medians per lab. Takes medianByStep row and aggregates by lab. */
+export function buildMedianByLab(
+  medianByStepRow: LabMedianRow | null,
+  courseid: string,
+  labs: string[],
+  steps: string[]
+): LabMedianRow | null {
+  if (!medianByStepRow) return null;
+
+  const row: LabMedianRow = { courseid, totalMinutes: 0 };
+
+  for (const labId of labs) {
+    let sum = 0;
+    for (const stepId of steps) {
+      if (extractLabIdentifier(stepId) === labId) {
+        sum += (medianByStepRow[stepId] as number) ?? 0;
+      }
+    }
+    row[labId] = sum;
+  }
+
+  const labSums = labs.map((labId) => (row[labId] as number) ?? 0).filter((v) => v > 0);
+  row.totalMinutes = median(labSums);
+
+  return row;
+}
+
 /** Build median row for lab-by-step view: one row with median duration per step. Values in 30-second blocks. */
 export function buildMedianByStep(
   records: LearningRecord[],

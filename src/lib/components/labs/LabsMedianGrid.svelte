@@ -6,16 +6,21 @@
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
+  type MedianMode = "day" | "week";
+
   interface Props {
     model: LabsModel;
+    mode: MedianMode;
   }
 
-  let { model }: Props = $props();
+  let { model, mode }: Props = $props();
 
-  const columnDefs = $derived(model.medianByDay.columnDefs);
-  const row = $derived(model.medianByDay.row);
+  const columnDefs = $derived(mode === "day" ? model.medianByDay.columnDefs : model.medianByWeek.columnDefs);
+  const row = $derived(mode === "day" ? model.medianByDay.row : model.medianByWeek.row);
   const rowData = $derived(row ? [row] : []);
   const hasData = $derived(model.hasData);
+  const hasMedianRow = $derived(mode === "day" ? model.hasMedianByDay : model.hasMedianByWeek);
+  const ariaLabel = $derived(mode === "day" ? "Lab median by step" : "Lab median by week");
 
   let gridContainer = $state<HTMLDivElement | null>(null);
   let gridApi = $state<GridApi<LabMedianRow> | null>(null);
@@ -30,7 +35,7 @@
       defaultColDef: { sortable: true, resizable: true },
       domLayout: "normal",
       suppressNoRowsOverlay: false,
-      headerHeight: 72
+      headerHeight: 170
     });
     gridApi = api;
     return () => {
@@ -62,9 +67,13 @@
   <div class="flex items-center justify-center p-8">
     <p class="text-lg text-surface-600">No lab data available</p>
   </div>
+{:else if !hasMedianRow}
+  <div class="flex items-center justify-center p-8">
+    <p class="text-lg text-surface-600">No lab median available</p>
+  </div>
 {:else}
   <div class="flex h-full flex-col gap-2">
-    <div class="ag-theme-quartz grid-fill-container min-h-0 flex-1" role="grid" aria-label="Lab median by day">
+    <div class="ag-theme-quartz grid-fill-container min-h-0 flex-1" role="grid" aria-label={ariaLabel}>
       <div bind:this={gridContainer} class="grid-fill-container"></div>
     </div>
   </div>
