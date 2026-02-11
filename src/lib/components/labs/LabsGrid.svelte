@@ -2,21 +2,21 @@
   import { createGrid, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
   import type { GridApi } from "ag-grid-community";
   import type { LabsModel } from "$lib/components/labs/LabsModel";
-  import type { LabsPivotedRow, LabViewMode } from "$lib/services/learningRecordUtils";
+  import type { LabRow, LabViewMode } from "$lib/components/labs/labUtils";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
   interface Props {
     model: LabsModel;
     mode: LabViewMode;
-    /** Optional: limit rows to a single student id (matches LabsPivotedRow.studentid). */
+    /** Optional: limit rows to a single student id (matches LabRow.studentid). */
     studentId?: string | null;
   }
 
   let { model, mode, studentId = null }: Props = $props();
 
   let gridContainer = $state<HTMLDivElement | null>(null);
-  let gridApi = $state<GridApi<LabsPivotedRow> | null>(null);
+  let gridApi = $state<GridApi<LabRow> | null>(null);
 
   const view = $derived(mode === "lab" ? model.lab : model.step);
   const rows = $derived(
@@ -26,7 +26,7 @@
   $effect(() => {
     const container = gridContainer;
     if (!container) return;
-    const api = createGrid<LabsPivotedRow>(container, {
+    const api = createGrid<LabRow>(container, {
       columnDefs: view.columnDefs,
       rowData: rows,
       loading: model.loading,

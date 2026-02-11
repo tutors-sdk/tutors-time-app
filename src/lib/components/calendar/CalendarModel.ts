@@ -8,32 +8,20 @@ import {
   buildPivotedRows,
   buildMedianByDay,
   buildMedianByWeek,
-  type PivotedRow,
-  type SummaryRow
+  type CalendarRow,
+  type CalendarMedianRow
 } from "./calendarUtils";
 
-/** Prepared data for the day-view calendar grid. */
-export type CalendarDayView = {
-  rows: PivotedRow[];
-  columnDefs: ColDef<PivotedRow>[];
+/** Prepared data for the day/week calendar grid (pivoted rows with time columns). */
+export type CalendarTable = {
+  rows: CalendarRow[];
+  columnDefs: ColDef<CalendarRow>[];
 };
 
-/** Prepared data for the week-view calendar grid. */
-export type CalendarWeekView = {
-  rows: PivotedRow[];
-  columnDefs: ColDef<PivotedRow>[];
-};
-
-/** Prepared data for the median-by-day grid (one row with medians per date). */
-export type CalendarMedianByDayView = {
-  row: SummaryRow | null;
-  columnDefs: ColDef<SummaryRow>[];
-};
-
-/** Prepared data for the median-by-week grid (one row with sums of medians per week). */
-export type CalendarMedianByWeekView = {
-  row: SummaryRow | null;
-  columnDefs: ColDef<SummaryRow>[];
+/** Prepared data for the median grid (one row with medians per date or week). */
+export type CalendarMedianTable = {
+  row: CalendarMedianRow | null;
+  columnDefs: ColDef<CalendarMedianRow>[];
 };
 
 /**
@@ -41,10 +29,10 @@ export type CalendarMedianByWeekView = {
  * Create an instance from raw entries and pass it to the grids.
  */
 export class CalendarModel {
-  readonly day: CalendarDayView;
-  readonly week: CalendarWeekView;
-  readonly medianByDay: CalendarMedianByDayView;
-  readonly medianByWeek: CalendarMedianByWeekView;
+  readonly day: CalendarTable;
+  readonly week: CalendarTable;
+  readonly medianByDay: CalendarMedianTable;
+  readonly medianByWeek: CalendarMedianTable;
   readonly loading: boolean;
   readonly error: string | null;
 
@@ -61,10 +49,10 @@ export class CalendarModel {
     this.medianByWeek = this.buildMedianByWeekView(entries, weeks, dates);
   }
 
-  private buildDayView(entries: CalendarEntry[], weeks: string[], dates: string[]): CalendarDayView {
+  private buildDayView(entries: CalendarEntry[], weeks: string[], dates: string[]): CalendarTable {
     const rows = buildPivotedRows(entries, weeks, dates, "day");
-    const timeColumns = selectTimeColumns<PivotedRow>("day", weeks, dates, true);
-    const columnDefs: ColDef<PivotedRow>[] = [
+    const timeColumns = selectTimeColumns<CalendarRow>("day", weeks, dates, true);
+    const columnDefs: ColDef<CalendarRow>[] = [
       {
         field: "full_name",
         headerName: "Student",
@@ -87,16 +75,16 @@ export class CalendarModel {
           return `<a href="${href}" class="underline text-primary-600">${studentId}</a>`;
         }
       },
-      buildTotalSecondsColumn<PivotedRow>("totalSeconds", "Total"),
+      buildTotalSecondsColumn<CalendarRow>("totalSeconds", "Total"),
       ...timeColumns
     ];
     return { rows, columnDefs };
   }
 
-  private buildWeekView(entries: CalendarEntry[], weeks: string[], dates: string[]): CalendarWeekView {
+  private buildWeekView(entries: CalendarEntry[], weeks: string[], dates: string[]): CalendarTable {
     const rows = buildPivotedRows(entries, weeks, dates, "week");
-    const timeColumns = selectTimeColumns<PivotedRow>("week", weeks, dates, true);
-    const columnDefs: ColDef<PivotedRow>[] = [
+    const timeColumns = selectTimeColumns<CalendarRow>("week", weeks, dates, true);
+    const columnDefs: ColDef<CalendarRow>[] = [
       {
         field: "full_name",
         headerName: "Student",
@@ -119,7 +107,7 @@ export class CalendarModel {
           return `<a href="${href}" class="underline text-primary-600">${studentId}</a>`;
         }
       },
-      buildTotalSecondsColumn<PivotedRow>("totalSeconds", "Total"),
+      buildTotalSecondsColumn<CalendarRow>("totalSeconds", "Total"),
       ...timeColumns
     ];
     return { rows, columnDefs };
@@ -137,12 +125,12 @@ export class CalendarModel {
     return this.medianByWeek.row != null;
   }
 
-  private buildMedianByDayView(entries: CalendarEntry[], dates: string[]): CalendarMedianByDayView {
+  private buildMedianByDayView(entries: CalendarEntry[], dates: string[]): CalendarMedianTable {
     const courseid = entries.length > 0 ? entries[0].courseid : "";
     const row = buildMedianByDay(entries, courseid, dates);
-    const timeColumnsDay = selectTimeColumns<SummaryRow>("day", [], dates, true);
-    const columnDefs: ColDef<SummaryRow>[] = [
-      buildTotalSecondsColumn<SummaryRow>("totalSeconds", "Total"),
+    const timeColumnsDay = selectTimeColumns<CalendarMedianRow>("day", [], dates, true);
+    const columnDefs: ColDef<CalendarMedianRow>[] = [
+      buildTotalSecondsColumn<CalendarMedianRow>("totalSeconds", "Total"),
       ...timeColumnsDay
     ];
     return { row, columnDefs };
@@ -152,13 +140,13 @@ export class CalendarModel {
     entries: CalendarEntry[],
     weeks: string[],
     dates: string[]
-  ): CalendarMedianByWeekView {
+  ): CalendarMedianTable {
     const courseid = entries.length > 0 ? entries[0].courseid : "";
     const medianByDayRow = this.medianByDay.row;
     const row = buildMedianByWeek(medianByDayRow, courseid, weeks, dates);
-    const timeColumnsWeek = selectTimeColumns<SummaryRow>("week", weeks, dates, true);
-    const columnDefs: ColDef<SummaryRow>[] = [
-      buildTotalSecondsColumn<SummaryRow>("totalSeconds", "Total"),
+    const timeColumnsWeek = selectTimeColumns<CalendarMedianRow>("week", weeks, dates, true);
+    const columnDefs: ColDef<CalendarMedianRow>[] = [
+      buildTotalSecondsColumn<CalendarMedianRow>("totalSeconds", "Total"),
       ...timeColumnsWeek
     ];
     return { row, columnDefs };

@@ -2,7 +2,7 @@
   import { createGrid, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
   import type { GridApi } from "ag-grid-community";
   import type { CalendarModel } from "$lib/components/calendar/CalendarModel";
-  import type { SummaryRow } from "$lib/components/calendar/calendarUtils";
+  import type { CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -22,12 +22,12 @@
   const ariaLabel = $derived(mode === "day" ? "Course median by day" : "Course median by week");
 
   let gridContainer = $state<HTMLDivElement | null>(null);
-  let gridApi = $state<GridApi<SummaryRow> | null>(null);
+  let gridApi = $state<GridApi<CalendarMedianRow> | null>(null);
 
   $effect(() => {
     const container = gridContainer;
     if (!container) return;
-    const api = createGrid<SummaryRow>(container, {
+    const api = createGrid<CalendarMedianRow>(container, {
       columnDefs,
       rowData,
       loading: model.loading,

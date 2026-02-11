@@ -2,13 +2,13 @@
   import { createGrid, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
   import type { GridApi } from "ag-grid-community";
   import type { CalendarModel } from "$lib/components/calendar/CalendarModel";
-  import type { PivotedRow, SummaryRow } from "$lib/components/calendar/calendarUtils";
+  import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
   type Mode = "day" | "week";
   type Variant = "detail" | "summary";
-  type GridRow = PivotedRow | SummaryRow;
+  type GridRow = CalendarRow | CalendarMedianRow;
 
   interface Props {
     model: CalendarModel;

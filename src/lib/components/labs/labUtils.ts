@@ -6,7 +6,7 @@ import { cellColorForMinutes, formatTimeMinutesOnly } from "$lib/components/cale
 export type LabViewMode = "lab" | "step";
 
 /** Pivoted row type for LabsGrid. */
-export type LabsPivotedRow = {
+export type LabRow = {
   studentid: string;
   totalMinutes: number;
   [lo_id: string]: string | number;
@@ -56,7 +56,7 @@ export function getDistinctLabs(records: LearningRecord[]): string[] {
  * - 'step' mode: Aggregates duration values for each (student_id, lo_id) combination.
  * - 'lab' mode: Aggregates duration values for each (student_id, lab_identifier) combination.
  */
-export function buildLabsPivotedRows(records: LearningRecord[], viewMode: LabViewMode = "step"): LabsPivotedRow[] {
+export function buildLabsPivotedRows(records: LearningRecord[], viewMode: LabViewMode = "step"): LabRow[] {
   const validRecords = records.filter((r) => r.lo_id !== null && r.lo_id !== undefined);
 
   if (validRecords.length === 0) {
@@ -84,7 +84,7 @@ export function buildLabsPivotedRows(records: LearningRecord[], viewMode: LabVie
 
   return students.map((studentid) => {
     let totalMinutes = 0;
-    const row: LabsPivotedRow = { studentid, totalMinutes: 0 };
+    const row: LabRow = { studentid, totalMinutes: 0 };
 
     for (const columnId of columns) {
       const blocks = map.get(`${studentid}\t${columnId}`) ?? 0;

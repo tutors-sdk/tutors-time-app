@@ -5,14 +5,14 @@ import type { ColDef } from "ag-grid-community";
 export type ViewMode = "week" | "day";
 
 // Shared row types so grids can reuse aggregation helpers.
-export type PivotedRow = {
+export type CalendarRow = {
   courseid: string;
   studentid: string;
   full_name: string;
   totalSeconds: number;
   [key: string]: string | number;
 };
-export type SummaryRow = { courseid: string; totalSeconds: number; [key: string]: string | number };
+export type CalendarMedianRow = { courseid: string; totalSeconds: number; [key: string]: string | number };
 
 /** Filter calendar entries by date range (inclusive). */
 export function filterByDateRange(entries: CalendarEntry[], startDate: string | null, endDate: string | null): CalendarEntry[] {
@@ -263,7 +263,7 @@ export function buildPerWeekTimeColumnsMinutesOnly<T = any>(weeks: string[]): Co
  * Build pivoted per-student rows for CalendarGrid, based on viewMode.
  * Each row has studentid, totalSeconds, and a column per week or date.
  */
-export function buildPivotedRows(entries: CalendarEntry[], weeks: string[], dates: string[], viewMode: ViewMode): PivotedRow[] {
+export function buildPivotedRows(entries: CalendarEntry[], weeks: string[], dates: string[], viewMode: ViewMode): CalendarRow[] {
   const students = Array.from(new Set(entries.map((e) => e.studentid))).sort();
   const courseId = entries.length > 0 ? entries[0].courseid : "";
   const nameMap = new Map<string, string>();
@@ -284,7 +284,7 @@ export function buildPivotedRows(entries: CalendarEntry[], weeks: string[], date
     }
     return students.map((studentid) => {
       let totalSeconds = 0;
-      const row: PivotedRow = {
+      const row: CalendarRow = {
         courseid: courseId,
         studentid,
         full_name: nameMap.get(studentid) ?? studentid,
@@ -305,7 +305,7 @@ export function buildPivotedRows(entries: CalendarEntry[], weeks: string[], date
     }
     return students.map((studentid) => {
       let totalSeconds = 0;
-      const row: PivotedRow = {
+      const row: CalendarRow = {
         courseid: courseId,
         studentid,
         full_name: nameMap.get(studentid) ?? studentid,
@@ -327,12 +327,12 @@ export function buildPivotedRows(entries: CalendarEntry[], weeks: string[], date
  * @param entries Array of calendar entries
  * @param courseid Course ID
  * @param dates Array of date strings (YYYY-MM-DD format)
- * @returns SummaryRow with medians per date, or null if no entries
+ * @returns CalendarMedianRow with medians per date, or null if no entries
  */
-export function buildMedianByDay(entries: CalendarEntry[], courseid: string, dates: string[]): SummaryRow | null {
+export function buildMedianByDay(entries: CalendarEntry[], courseid: string, dates: string[]): CalendarMedianRow | null {
   if (!entries.length) return null;
 
-  const row: SummaryRow = { courseid, totalSeconds: 0 };
+  const row: CalendarMedianRow = { courseid, totalSeconds: 0 };
 
   // Calculate median for each date using getMedianForDate
   for (const date of dates) {
@@ -357,16 +357,16 @@ export function buildMedianByDay(entries: CalendarEntry[], courseid: string, dat
 /**
  * Build a median row for week view, aggregating daily medians into weekly sums.
  * Takes the medianByDay row and groups dates by week, calculating the sum of daily medians for each week.
- * @param medianByDayRow The SummaryRow from buildMedianByDay containing daily medians
+ * @param medianByDayRow The CalendarMedianRow from buildMedianByDay containing daily medians
  * @param courseid Course ID
  * @param weeks Array of week Monday dates (YYYY-MM-DD format)
  * @param dates Array of date strings (YYYY-MM-DD format)
- * @returns SummaryRow with sums of medians per week, or null if medianByDayRow is null
+ * @returns CalendarMedianRow with sums of medians per week, or null if medianByDayRow is null
  */
-export function buildMedianByWeek(medianByDayRow: SummaryRow | null, courseid: string, weeks: string[], dates: string[]): SummaryRow | null {
+export function buildMedianByWeek(medianByDayRow: CalendarMedianRow | null, courseid: string, weeks: string[], dates: string[]): CalendarMedianRow | null {
   if (!medianByDayRow) return null;
 
-  const row: SummaryRow = { courseid, totalSeconds: 0 };
+  const row: CalendarMedianRow = { courseid, totalSeconds: 0 };
 
   // Group daily medians by week and sum them
   const sumsByWeek = new Map<string, number>();

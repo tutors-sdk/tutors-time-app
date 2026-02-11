@@ -6,19 +6,13 @@ import {
   buildLabsPivotedRows,
   buildLabColumns,
   buildTotalMinutesColumn,
-  type LabsPivotedRow
-} from "$lib/services/learningRecordUtils";
+  type LabRow
+} from "$lib/components/labs/labUtils";
 
-/** Prepared data for the lab-view grid (one column per lab). */
-export type LabsLabView = {
-  rows: LabsPivotedRow[];
-  columnDefs: ColDef<LabsPivotedRow>[];
-};
-
-/** Prepared data for the step-view grid (one column per lab step). */
-export type LabsStepView = {
-  rows: LabsPivotedRow[];
-  columnDefs: ColDef<LabsPivotedRow>[];
+/** Prepared data for the lab/step grid (one column per lab or step). */
+export type LabsTable = {
+  rows: LabRow[];
+  columnDefs: ColDef<LabRow>[];
 };
 
 /**
@@ -26,8 +20,8 @@ export type LabsStepView = {
  * Filters learning records to those with a segment starting with "book", then builds lab and step views.
  */
 export class LabsModel {
-  readonly lab: LabsLabView;
-  readonly step: LabsStepView;
+  readonly lab: LabsTable;
+  readonly step: LabsTable;
   readonly loading: boolean;
   readonly error: string | null;
 
@@ -55,11 +49,11 @@ export class LabsModel {
       });
   }
 
-  private buildLabView(records: LearningRecord[]): LabsLabView {
+  private buildLabView(records: LearningRecord[]): LabsTable {
     const labs = getDistinctLabs(records);
     const rows = buildLabsPivotedRows(records, "lab");
-    const labColumns = buildLabColumns<LabsPivotedRow>(labs, false);
-    const columnDefs: ColDef<LabsPivotedRow>[] = [
+    const labColumns = buildLabColumns<LabRow>(labs, false);
+    const columnDefs: ColDef<LabRow>[] = [
       {
         field: "studentid",
         headerName: "Student ID",
@@ -68,17 +62,17 @@ export class LabsModel {
         pinned: "left",
         cellStyle: { paddingLeft: "4px" }
       },
-      buildTotalMinutesColumn<LabsPivotedRow>("totalMinutes", "Total"),
+      buildTotalMinutesColumn<LabRow>("totalMinutes", "Total"),
       ...labColumns
     ];
     return { rows, columnDefs };
   }
 
-  private buildStepView(records: LearningRecord[]): LabsStepView {
+  private buildStepView(records: LearningRecord[]): LabsTable {
     const steps = getDistinctLabSteps(records);
     const rows = buildLabsPivotedRows(records, "step");
-    const stepColumns = buildLabColumns<LabsPivotedRow>(steps, true);
-    const columnDefs: ColDef<LabsPivotedRow>[] = [
+    const stepColumns = buildLabColumns<LabRow>(steps, true);
+    const columnDefs: ColDef<LabRow>[] = [
       {
         field: "studentid",
         headerName: "Student ID",
@@ -87,7 +81,7 @@ export class LabsModel {
         pinned: "left",
         cellStyle: { paddingLeft: "4px" }
       },
-      buildTotalMinutesColumn<LabsPivotedRow>("totalMinutes", "Total"),
+      buildTotalMinutesColumn<LabRow>("totalMinutes", "Total"),
       ...stepColumns
     ];
     return { rows, columnDefs };
