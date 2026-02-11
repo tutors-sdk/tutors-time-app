@@ -6,13 +6,21 @@ import {
   buildLabsPivotedRows,
   buildLabColumns,
   buildTotalMinutesColumn,
-  type LabRow
+  buildMedianByStep,
+  type LabRow,
+  type LabMedianRow
 } from "$lib/components/labs/labUtils";
 
 /** Prepared data for the lab/step grid (one column per lab or step). */
 export type LabsTable = {
   rows: LabRow[];
   columnDefs: ColDef<LabRow>[];
+};
+
+/** Prepared data for the labs median grid (one row with medians per date or step). */
+export type LabsMedianTable = {
+  row: LabMedianRow | null;
+  columnDefs: ColDef<LabMedianRow>[];
 };
 
 /**
@@ -22,6 +30,7 @@ export type LabsTable = {
 export class LabsModel {
   readonly lab: LabsTable;
   readonly step: LabsTable;
+  readonly medianByDay: LabsMedianTable;
   readonly loading: boolean;
   readonly error: string | null;
 
@@ -33,6 +42,7 @@ export class LabsModel {
 
     this.lab = this.buildLabView(filtered);
     this.step = this.buildStepView(filtered);
+    this.medianByDay = this.buildMedianByDayView(filtered);
   }
 
   private filterAndSortRecords(records: LearningRecord[]): LearningRecord[] {
@@ -71,7 +81,7 @@ export class LabsModel {
   private buildStepView(records: LearningRecord[]): LabsTable {
     const steps = getDistinctLabSteps(records);
     const rows = buildLabsPivotedRows(records, "step");
-    const stepColumns = buildLabColumns<LabRow>(steps, true);
+    const stepColumns = buildLabColumns<LabRow>(steps, "step");
     const columnDefs: ColDef<LabRow>[] = [
       {
         field: "studentid",
@@ -89,5 +99,21 @@ export class LabsModel {
 
   get hasData(): boolean {
     return this.lab.rows.length > 0;
+  }
+
+  get hasMedianByDay(): boolean {
+    return this.medianByDay.row != null;
+  }
+
+  private buildMedianByDayView(records: LearningRecord[]): LabsMedianTable {
+    const steps = getDistinctLabSteps(records);
+    const courseid = records.length > 0 ? records[0].course_id : "";
+    const row = buildMedianByStep(records, courseid, steps);
+    const stepColumns = buildLabColumns<LabMedianRow>(steps, "step");
+    const columnDefs: ColDef<LabMedianRow>[] = [
+      buildTotalMinutesColumn<LabMedianRow>("totalMinutes", "Total"),
+      ...stepColumns
+    ];
+    return { row, columnDefs };
   }
 }

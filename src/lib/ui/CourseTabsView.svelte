@@ -4,6 +4,7 @@
   import CalendarGrid from "$lib/components/calendar/CalendarGrid.svelte";
   import LearningRecordsTable from "$lib/ui/LearningRecordsTable.svelte";
   import LabsGrid from "$lib/components/labs/LabsGrid.svelte";
+  import LabsMedianGrid from "$lib/components/labs/LabsMedianGrid.svelte";
   import type { CourseCalendar } from "$lib/types";
 
   type TabValue =
@@ -14,7 +15,8 @@
     | "raw"
     | "learning"
     | "labsStep"
-    | "labsLab";
+    | "labsLab"
+    | "medianLabsDay";
 
   interface Props {
     selectedCourse: CourseCalendar | null;
@@ -39,6 +41,7 @@
         <Tabs.Trigger value="learning">Lab Learning Records</Tabs.Trigger>
         <Tabs.Trigger value="labsStep">Labs by Step</Tabs.Trigger>
         <Tabs.Trigger value="labsLab">Labs by Lab</Tabs.Trigger>
+        <Tabs.Trigger value="medianLabsDay">Median Lab by Step</Tabs.Trigger>
         <Tabs.Indicator />
       </Tabs.List>
       <Tabs.Content value="week" class="flex-1 min-h-0">
@@ -90,6 +93,13 @@
         <div class="visual-tab-viewport h-full">
           {#if labsModel}
             <LabsGrid model={labsModel} mode="lab" />
+          {/if}
+        </div>
+      </Tabs.Content>
+      <Tabs.Content value="medianLabsDay" class="flex-1 min-h-0">
+        <div class="summary-tab-viewport h-full">
+          {#if labsModel}
+            <LabsMedianGrid model={labsModel} />
           {/if}
         </div>
       </Tabs.Content>
