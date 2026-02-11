@@ -72,6 +72,8 @@ export type StudentCalendar = {
   error: string | null;
   /** Prepared views for the calendar grid. */
   calendarModel: CalendarModel;
+  /** Prepared lab/step views for LabsGrid. */
+  labsModel: LabsModel;
 };
 
 

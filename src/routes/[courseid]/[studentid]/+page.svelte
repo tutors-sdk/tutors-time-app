@@ -1,5 +1,6 @@
 <script lang="ts">
   import CalendarGrid from "$lib/components/calendar/CalendarGrid.svelte";
+  import LabsGrid from "$lib/components/labs/LabsGrid.svelte";
   import { CourseTime } from "$lib/services/CourseTime";
   import type { StudentCalendar } from "$lib/types";
   import { onMount } from "svelte";
@@ -9,6 +10,12 @@
   let studentCalendar = $state<StudentCalendar | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
+
+  const studentDisplayName = $derived(
+    studentCalendar && studentCalendar.data.length > 0
+      ? studentCalendar.data[0].full_name || studentCalendar.studentId
+      : studentCalendar?.studentId ?? ""
+  );
 
   onMount(async () => {
     const rawCourseId: string | undefined = $page.params.courseid as string | undefined;
@@ -91,8 +98,20 @@
           </p>
         </div>
       {:else if studentCalendar}
-        <div class="visual-tab-viewport h-full">
-          <CalendarGrid model={studentCalendar.calendarModel} mode="week" />
+        <div class="flex flex-col gap-4 flex-1 min-h-0">
+          <section class="visual-tab-viewport h-1/2 min-h-[220px]">
+            <h2 class="text-xl font-semibold mb-2">By week</h2>
+            <div class="h-[calc(100%-2rem)]">
+              <CalendarGrid model={studentCalendar.calendarModel} mode="week" />
+            </div>
+          </section>
+
+          <section class="visual-tab-viewport h-1/2 min-h-[220px]">
+            <h2 class="text-xl font-semibold mb-2">Labs by lab</h2>
+            <div class="h-[calc(100%-2rem)]">
+              <LabsGrid model={studentCalendar.labsModel} mode="lab" studentId={studentDisplayName} />
+            </div>
+          </section>
         </div>
       {/if}
     </div>

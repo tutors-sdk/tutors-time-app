@@ -9,21 +9,26 @@
   interface Props {
     model: LabsModel;
     mode: LabViewMode;
+    /** Optional: limit rows to a single student id (matches LabsPivotedRow.studentid). */
+    studentId?: string | null;
   }
 
-  let { model, mode }: Props = $props();
+  let { model, mode, studentId = null }: Props = $props();
 
   let gridContainer = $state<HTMLDivElement | null>(null);
   let gridApi = $state<GridApi<LabsPivotedRow> | null>(null);
 
   const view = $derived(mode === "lab" ? model.lab : model.step);
+  const rows = $derived(
+    studentId ? view.rows.filter((row) => row.studentid === studentId) : view.rows
+  );
 
   $effect(() => {
     const container = gridContainer;
     if (!container) return;
     const api = createGrid<LabsPivotedRow>(container, {
       columnDefs: view.columnDefs,
-      rowData: view.rows,
+      rowData: rows,
       loading: model.loading,
       defaultColDef: { sortable: true, resizable: true },
       domLayout: "normal",
@@ -41,7 +46,7 @@
     const api = gridApi;
     if (api) {
       api.setGridOption("columnDefs", view.columnDefs);
-      api.setGridOption("rowData", view.rows);
+      api.setGridOption("rowData", rows);
       api.setGridOption("loading", model.loading);
     }
   });

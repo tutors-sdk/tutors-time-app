@@ -126,6 +126,17 @@ export const CourseTime = {
         }
       }
 
+      // Load all lab learning records for this course.
+      // We keep the full set so LabsGrid can show all lab columns,
+      // but will filter rows to this student in the UI.
+      let learningRecords: LearningRecord[] = [];
+      let learningRecordsError: string | null = null;
+      try {
+        learningRecords = await CourseTime.getAllLearningRecordsForCourse(id);
+      } catch (e) {
+        learningRecordsError = e instanceof Error ? e.message : "Failed to load learning records";
+      }
+
       result = {
         id,
         studentId: sid,
@@ -133,7 +144,8 @@ export const CourseTime = {
         data: paddedEntries,
         loading: false,
         error: null,
-        calendarModel: new CalendarModel(paddedEntries, false, null)
+        calendarModel: new CalendarModel(paddedEntries, false, null),
+        labsModel: new LabsModel(learningRecords, false, learningRecordsError)
       };
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load calendar data";
@@ -144,7 +156,8 @@ export const CourseTime = {
         data: [],
         loading: false,
         error: msg,
-        calendarModel: new CalendarModel([], false, msg)
+        calendarModel: new CalendarModel([], false, msg),
+        labsModel: new LabsModel([], false, msg)
       };
     }
 
