@@ -3,7 +3,6 @@
   import { CourseTime } from "$lib/services/CourseTime";
   import type { CourseCalendar } from "$lib/types";
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
 
   type Mode = "week" | "day";
 
@@ -38,10 +37,6 @@
       loading = false;
     }
   });
-
-  function goBackToCourse() {
-    goto(`/${courseId}`);
-  }
 </script>
 
 <svelte:head>
@@ -51,27 +46,6 @@
 
 <section class="p-2 h-[calc(100vh-4rem)]">
   <div class="card p-4 h-full flex flex-col">
-    <div class="flex justify-between items-center mb-4 shrink-0">
-      <div>
-        <h1 class="text-3xl font-bold">{title}</h1>
-        <p class="text-surface-600 text-sm mt-1">
-          {#if course}
-            {course.title} ({course.id})
-          {:else}
-            {courseId}
-          {/if}
-        </p>
-      </div>
-      <button
-        type="button"
-        class="btn preset-outlined"
-        onclick={goBackToCourse}
-        aria-label="Back to course"
-      >
-        Back to course
-      </button>
-    </div>
-
     <div class="flex flex-col flex-1 min-h-0">
       {#if loading}
         <div class="flex items-center justify-center flex-1">

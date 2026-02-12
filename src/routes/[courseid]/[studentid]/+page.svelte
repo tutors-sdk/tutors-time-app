@@ -5,7 +5,6 @@
   import type { StudentCalendar } from "$lib/types";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
 
   let studentCalendar = $state<StudentCalendar | null>(null);
   let loading = $state(true);
@@ -40,10 +39,6 @@
       loading = false;
     }
   });
-
-  function goBackToCourse() {
-    goto("/");
-  }
 </script>
 
 <svelte:head>
@@ -53,34 +48,6 @@
 
 <section class="p-2 h-[calc(100vh-4rem)]">
   <div class="card p-4 h-full flex flex-col">
-    <div class="flex justify-between items-center mb-4 shrink-0">
-      <div>
-        <h1 class="text-3xl font-bold">Student Calendar</h1>
-        <p class="text-surface-600 text-sm mt-1">
-          Course:
-          {#if studentCalendar}
-            {studentCalendar.title} ({studentCalendar.id})
-          {:else}
-            {$page.params.courseid}
-          {/if}
-          · Student:
-          {#if studentCalendar}
-            {studentCalendar.studentId}
-          {:else}
-            {$page.params.studentid}
-          {/if}
-        </p>
-      </div>
-      <button
-        type="button"
-        class="btn preset-outlined"
-        onclick={goBackToCourse}
-        aria-label="Back to course calendar"
-      >
-        Back to course calendar
-      </button>
-    </div>
-
     <div class="flex flex-col flex-1 min-h-0">
       {#if loading}
         <div class="flex items-center justify-center flex-1">
@@ -100,14 +67,12 @@
       {:else if studentCalendar}
         <div class="flex flex-col gap-4 flex-1 min-h-0 overflow-hidden">
           <section class="flex-1 min-h-0 flex flex-col">
-            <h2 class="text-xl font-semibold mb-2 shrink-0">Calendar by week</h2>
             <div class="flex-1 min-h-0">
               <CalendarGrid model={studentCalendar.calendarModel} mode="week" includeMedianRow studentId={studentCalendar.studentId} />
             </div>
           </section>
 
           <section class="flex-1 min-h-0 flex flex-col">
-            <h2 class="text-xl font-semibold mb-2 shrink-0">Labs by lab</h2>
             <div class="flex-1 min-h-0">
               <LabsGrid model={studentCalendar.labsModel} mode="lab" studentId={studentDisplayName} includeMedianRow />
             </div>

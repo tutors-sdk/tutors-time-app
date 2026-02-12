@@ -3,7 +3,6 @@
   import { CourseTime } from "$lib/services/CourseTime";
   import type { CourseCalendar } from "$lib/types";
   import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
 
   let course = $state<CourseCalendar | null>(null);
   let loading = $state(false);
@@ -43,9 +42,6 @@
     }
   }
 
-  function goToCoursePicker() {
-    goto("/");
-  }
 </script>
 
 <svelte:head>
@@ -55,20 +51,6 @@
 
 <section class="h-full flex flex-col min-h-0">
   <div class="card p-4 flex-1 flex flex-col min-h-0">
-    <div class="flex justify-between items-center mb-4 shrink-0">
-      <h1 class="text-3xl font-bold">
-        Calendar Data {#if course} for {course.title}{/if}
-      </h1>
-      <button
-        type="button"
-        class="btn preset-outlined"
-        onclick={goToCoursePicker}
-        aria-label="Back to course picker"
-      >
-        Change course
-      </button>
-    </div>
-
     <div class="flex flex-col flex-1 min-h-0">
       {#if loading}
         <div class="flex items-center justify-center flex-1">
