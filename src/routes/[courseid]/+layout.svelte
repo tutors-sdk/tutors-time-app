@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Navigation } from "@skeletonlabs/skeleton-svelte";
+  import { Navigation, Portal, Tooltip } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import { page } from "$app/stores";
 
@@ -11,9 +11,14 @@
 
   const navLinks = $derived([
     {
-      label: "Course overview",
-      href: `/${courseId}`,
-      icon: "streamline-ultimate-color:house-4"
+      label: "Calendar by Week",
+      href: `${calendarPath}/byweek`,
+      icon: "streamline-ultimate-color:calendar-1"
+    },
+    {
+      label: "Calendar Median By Week",
+      href: `${calendarPath}/median/byweek`,
+      icon: "streamline-ultimate-color:app-window-pie-chart"
     },
     {
       label: "Calendar By Day",
@@ -21,18 +26,18 @@
       icon: "streamline-ultimate-color:calendar-date"
     },
     {
-      label: "Calendar by Week",
-      href: `${calendarPath}/byweek`,
-      icon: "streamline-ultimate-color:calendar-1"
-    },
-    {
       label: "Calendar Median by day",
       href: `${calendarPath}/median/byday`,
       icon: "streamline-ultimate-color:analytics-bars-3d"
     },
     {
-      label: "Calendar Median By Week",
-      href: `${calendarPath}/median/byweek`,
+      label: "Labs by Lab",
+      href: `${labPath}/bylab`,
+      icon: "streamline-ultimate-color:book-open-bookmark"
+    },
+    {
+      label: "Median Lab by Lab",
+      href: `${labPath}/median/byweek`,
       icon: "streamline-ultimate-color:app-window-pie-chart"
     },
     {
@@ -41,19 +46,9 @@
       icon: "streamline-ultimate-color:lab-tube-experiment"
     },
     {
-      label: "Labs by Lab",
-      href: `${labPath}/bylab`,
-      icon: "streamline-ultimate-color:book-open-bookmark"
-    },
-    {
       label: "Median Lab by Step",
       href: `${labPath}/median/bystep`,
       icon: "streamline-ultimate-color:analytics-bars-3d"
-    },
-    {
-      label: "Median Lab by Week",
-      href: `${labPath}/median/byweek`,
-      icon: "streamline-ultimate-color:app-window-pie-chart"
     }
   ]);
 </script>
@@ -64,13 +59,23 @@
       <Navigation.Group>
         <Navigation.Menu class="flex flex-col gap-1">
           {#each navLinks as item (item.href)}
-            <Navigation.TriggerAnchor
-              href={item.href}
-              title={item.label}
-              class="btn btn-icon btn-icon-lg preset-tonal justify-center w-full"
-            >
-              <Icon icon={item.icon} class="size-8 shrink-0" />
-            </Navigation.TriggerAnchor>
+            <Tooltip positioning={{ placement: "right" }}>
+              <Tooltip.Trigger>
+                <Navigation.TriggerAnchor
+                  href={item.href}
+                  class="btn btn-icon btn-icon-lg preset-tonal justify-center w-full"
+                >
+                  <Icon icon={item.icon} class="size-8 shrink-0" />
+                </Navigation.TriggerAnchor>
+              </Tooltip.Trigger>
+              <Portal>
+                <Tooltip.Positioner class="z-20!">
+                  <Tooltip.Content class="card p-2 preset-filled-surface-950-50">
+                    <span>{item.label}</span>
+                  </Tooltip.Content>
+                </Tooltip.Positioner>
+              </Portal>
+            </Tooltip>
           {/each}
         </Navigation.Menu>
       </Navigation.Group>

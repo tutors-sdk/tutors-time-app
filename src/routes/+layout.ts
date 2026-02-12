@@ -6,7 +6,8 @@ function getViewType(pathname: string): string {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length < 1) return "";
   if (segments.length === 2 && segments[1] !== "calendar" && segments[1] !== "lab") return "Student Calendar"; // /courseid/studentid
-  if (segments.length === 1) return "Course overview"; // /courseid
+  // /courseid redirects to calendar/byweek, so this is rarely seen
+  if (segments.length === 1) return "Calendar by week";
   if (segments[1] === "calendar") {
     if (segments[2] === "median") {
       if (segments[3] === "byday") return "Calendar median by day";

@@ -14,7 +14,7 @@
     try {
       await CourseTime.loadCalendar(courseId, startDate, endDate);
       dialogOpen = false;
-      goto(`/${courseId}`);
+      goto(`/${courseId}/calendar/byweek`);
     } catch (e) {
       dialogError = e instanceof Error ? e.message : "Failed to load calendar data";
     } finally {
