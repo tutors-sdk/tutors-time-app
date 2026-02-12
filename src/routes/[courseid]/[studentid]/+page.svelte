@@ -98,17 +98,17 @@
           </p>
         </div>
       {:else if studentCalendar}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0 overflow-y-auto">
-          <section class="visual-tab-viewport min-h-[220px] flex flex-col">
+        <div class="flex flex-col gap-4 flex-1 min-h-0 overflow-hidden">
+          <section class="flex-1 min-h-0 flex flex-col">
             <h2 class="text-xl font-semibold mb-2 shrink-0">Calendar by week</h2>
-            <div class="flex-1 min-h-[180px]">
+            <div class="flex-1 min-h-0">
               <CalendarGrid model={studentCalendar.calendarModel} mode="week" includeMedianRow studentId={studentCalendar.studentId} />
             </div>
           </section>
 
-          <section class="visual-tab-viewport min-h-[220px] flex flex-col">
+          <section class="flex-1 min-h-0 flex flex-col">
             <h2 class="text-xl font-semibold mb-2 shrink-0">Labs by lab</h2>
-            <div class="flex-1 min-h-[180px]">
+            <div class="flex-1 min-h-0">
               <LabsGrid model={studentCalendar.labsModel} mode="lab" studentId={studentDisplayName} includeMedianRow />
             </div>
           </section>

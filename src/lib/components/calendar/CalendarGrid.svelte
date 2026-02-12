@@ -24,7 +24,7 @@
 
   const isSummary = $derived(variant === "summary");
 
-  const columnDefs = $derived(
+  const baseColumnDefs = $derived(
     isSummary
       ? mode === "day"
         ? model.medianByDay.columnDefs
@@ -32,6 +32,13 @@
       : mode === "day"
         ? model.day.columnDefs
         : model.week.columnDefs
+  );
+
+  /** Strip sort from columns when includeMedianRow so blank row stays between student and median. */
+  const columnDefs = $derived(
+    includeMedianRow && mode === "week"
+      ? baseColumnDefs.map((col) => ({ ...col, sort: undefined }))
+      : baseColumnDefs
   );
 
   const rowData = $derived(
@@ -48,12 +55,18 @@
           if (!includeMedianRow || mode !== "week") return rows;
           const medianRow = model.medianByWeek.row;
           if (!medianRow) return rows;
+          const blankRow: CalendarRow = {
+            courseid: "",
+            studentid: "",
+            full_name: "",
+            totalSeconds: 0
+          };
           const combined: CalendarRow = {
             ...medianRow,
             studentid: "",
             full_name: "Course median"
           };
-          return [...rows, combined];
+          return [...rows, blankRow, combined];
         })()
   );
 

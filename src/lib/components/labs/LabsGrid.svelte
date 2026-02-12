@@ -21,17 +21,25 @@
   let gridApi = $state<GridApi<LabRow> | null>(null);
 
   const view = $derived(mode === "lab" ? model.lab : model.step);
+
+  /** Strip sort from columns when includeMedianRow so blank row stays between student and median. */
+  const columnDefs = $derived(
+    includeMedianRow && mode === "lab"
+      ? view.columnDefs.map((col) => ({ ...col, sort: undefined }))
+      : view.columnDefs
+  );
   const rows = $derived(
     (() => {
       let result = studentId ? view.rows.filter((row) => row.studentid === studentId) : view.rows;
       if (includeMedianRow && mode === "lab") {
         const medianRow = model.medianByLab.row;
         if (medianRow) {
+          const blankRow: LabRow = { studentid: "", totalMinutes: 0 };
           const combined: LabRow = {
             ...medianRow,
             studentid: "Course median"
           };
-          result = [...result, combined];
+          result = [...result, blankRow, combined];
         }
       }
       return result;
@@ -42,7 +50,7 @@
     const container = gridContainer;
     if (!container) return;
     const api = createGrid<LabRow>(container, {
-      columnDefs: view.columnDefs,
+      columnDefs,
       rowData: rows,
       loading: model.loading,
       defaultColDef: { sortable: true, resizable: true },
@@ -62,7 +70,7 @@
   $effect(() => {
     const api = gridApi;
     if (api) {
-      api.setGridOption("columnDefs", view.columnDefs);
+      api.setGridOption("columnDefs", columnDefs);
       api.setGridOption("rowData", rows);
       api.setGridOption("loading", model.loading);
     }
