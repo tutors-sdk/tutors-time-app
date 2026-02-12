@@ -31,8 +31,8 @@ export type LabsMedianTable = {
 export class LabsModel {
   readonly lab: LabsTable;
   readonly step: LabsTable;
-  readonly medianByDay: LabsMedianTable;
-  readonly medianByWeek: LabsMedianTable;
+  readonly medianByLabStep: LabsMedianTable;
+  readonly medianByLab: LabsMedianTable;
   readonly loading: boolean;
   readonly error: string | null;
 
@@ -44,8 +44,8 @@ export class LabsModel {
 
     this.lab = this.buildLabView(filtered);
     this.step = this.buildStepView(filtered);
-    this.medianByDay = this.buildMedianByDayView(filtered);
-    this.medianByWeek = this.buildMedianByWeekView(filtered);
+    this.medianByLabStep = this.buildMedianByLabStepView(filtered);
+    this.medianByLab = this.buildMedianByLabView(filtered);
   }
 
   private filterAndSortRecords(records: LearningRecord[]): LearningRecord[] {
@@ -104,15 +104,15 @@ export class LabsModel {
     return this.lab.rows.length > 0;
   }
 
-  get hasMedianByDay(): boolean {
-    return this.medianByDay.row != null;
+  get hasMedianByLabStep(): boolean {
+    return this.medianByLabStep.row != null;
   }
 
-  get hasMedianByWeek(): boolean {
-    return this.medianByWeek.row != null;
+  get hasMedianByLab(): boolean {
+    return this.medianByLab.row != null;
   }
 
-  private buildMedianByDayView(records: LearningRecord[]): LabsMedianTable {
+  private buildMedianByLabStepView(records: LearningRecord[]): LabsMedianTable {
     const steps = getDistinctLabSteps(records);
     const courseid = records.length > 0 ? records[0].course_id : "";
     const row = buildMedianByStep(records, courseid, steps);
@@ -124,7 +124,7 @@ export class LabsModel {
     return { row, columnDefs };
   }
 
-  private buildMedianByWeekView(records: LearningRecord[]): LabsMedianTable {
+  private buildMedianByLabView(records: LearningRecord[]): LabsMedianTable {
     const labs = getDistinctLabs(records);
     const courseid = records.length > 0 ? records[0].course_id : "";
     const row = buildMedianByLab(records, courseid, labs);

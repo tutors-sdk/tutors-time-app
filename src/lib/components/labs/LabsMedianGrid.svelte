@@ -15,11 +15,11 @@
 
   let { model, mode }: Props = $props();
 
-  const columnDefs = $derived(mode === "day" ? model.medianByDay.columnDefs : model.medianByWeek.columnDefs);
-  const row = $derived(mode === "day" ? model.medianByDay.row : model.medianByWeek.row);
+  const columnDefs = $derived(mode === "day" ? model.medianByLabStep.columnDefs : model.medianByLab.columnDefs);
+  const row = $derived(mode === "day" ? model.medianByLabStep.row : model.medianByLab.row);
   const rowData = $derived(row ? [row] : []);
   const hasData = $derived(model.hasData);
-  const hasMedianRow = $derived(mode === "day" ? model.hasMedianByDay : model.hasMedianByWeek);
+  const hasMedianRow = $derived(mode === "day" ? model.hasMedianByLabStep : model.hasMedianByLab);
   const ariaLabel = $derived(mode === "day" ? "Lab median by step" : "Lab median by week");
 
   let gridContainer = $state<HTMLDivElement | null>(null);
