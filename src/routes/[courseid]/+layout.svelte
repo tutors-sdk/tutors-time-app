@@ -16,24 +16,9 @@
       icon: "streamline-ultimate-color:calendar-1"
     },
     {
-      label: "Calendar Median By Week",
-      href: `${calendarPath}/median/byweek`,
-      icon: "streamline-ultimate-color:app-window-pie-chart"
-    },
-    {
       label: "Calendar By Day",
       href: `${calendarPath}/byday`,
       icon: "streamline-ultimate-color:calendar-date"
-    },
-    {
-      label: "Calendar Median by day",
-      href: `${calendarPath}/median/byday`,
-      icon: "streamline-ultimate-color:analytics-bars-3d"
-    },
-    {
-      label: "Raw Calendar",
-      href: `${calendarPath}/raw`,
-      icon: "streamline-ultimate-color:office-file-xls"
     },
     {
       label: "Labs by Lab",
@@ -41,19 +26,36 @@
       icon: "streamline-ultimate-color:book-open-bookmark"
     },
     {
-      label: "Median Lab by Lab",
-      href: `${labPath}/median/byweek`,
-      icon: "streamline-ultimate-color:app-window-pie-chart"
-    },
-    {
       label: "Labs by Step",
       href: `${labPath}/bystep`,
       icon: "streamline-ultimate-color:lab-tube-experiment"
     },
     {
+      label: "Calendar Median By Week",
+      href: `${calendarPath}/median/byweek`,
+      icon: "streamline-ultimate-color:app-window-pie-chart"
+    },
+
+    {
+      label: "Calendar Median by day",
+      href: `${calendarPath}/median/byday`,
+      icon: "streamline-ultimate-color:analytics-bars-3d"
+    },
+
+    {
+      label: "Median Lab by Lab",
+      href: `${labPath}/median/byweek`,
+      icon: "streamline-ultimate-color:app-window-pie-chart"
+    },
+    {
       label: "Median Lab by Step",
       href: `${labPath}/median/bystep`,
       icon: "streamline-ultimate-color:analytics-bars-3d"
+    },
+    {
+      label: "Raw Calendar",
+      href: `${calendarPath}/raw`,
+      icon: "streamline-ultimate-color:office-file-xls"
     },
     {
       label: "Learning Records",
