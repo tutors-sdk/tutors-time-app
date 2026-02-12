@@ -30,7 +30,8 @@
     }
 
     try {
-      const result = await CourseTime.loadStudentCalendar(courseId, studentId, null, null);
+      const courseTime = new CourseTime();
+      const result = await courseTime.loadStudentCalendar(courseId, studentId, null, null);
       studentCalendar = result;
       error = result.error;
     } catch (e) {

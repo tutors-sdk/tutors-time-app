@@ -17,7 +17,8 @@
       return;
     }
     try {
-      course = await CourseTime.loadCalendar(id, null, null);
+      const courseTime = new CourseTime();
+      course = await courseTime.loadCalendar(id, null, null);
       error = course.error;
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to load calendar data";

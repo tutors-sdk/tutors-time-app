@@ -11,22 +11,23 @@ import { LabsModel } from "$lib/components/labs/LabsModel";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectCourse, TutorsConnectUser } from "$lib/types";
 
-export const CourseTime = {
+export class CourseTime {
   /** Loaded calendar data for the current course. Updated when loadCalendar is called. */
-  CourseData: null as CourseCalendar | null,
+  courseData: CourseCalendar | null = null;
 
   /**
    * Load calendar data for a single course and date range.
-   * Stores the result in CourseData and returns it.
+   * Stores the result in courseData and returns it.
    */
-  async loadCalendar(courseId: string, startDate: string | null, endDate: string | null): Promise<CourseCalendar> {
+  async loadCalendar(
+    courseId: string,
+    startDate: string | null,
+    endDate: string | null
+  ): Promise<CourseCalendar> {
     const id = courseId.trim();
     if (!id) throw new Error("Course ID is required");
 
-    // const titleMap = await CourseTime.getCourseTitles([id]);
-    //const title = titleMap[id] || id;
     const title = await CourseTime.getCourseTitle(id);
-    console.log("title", title);
 
     let course: CourseCalendar;
 
@@ -70,13 +71,13 @@ export const CourseTime = {
       };
     }
 
-    CourseTime.CourseData = course;
+    this.courseData = course;
     return course;
-  },
+  }
 
   /**
    * Load calendar data for a single student within a course and date range.
-   * Does not mutate CourseData; returns a StudentCalendar instance.
+   * Does not mutate courseData; returns a StudentCalendar instance.
    */
   async loadStudentCalendar(
     courseId: string,
@@ -162,15 +163,19 @@ export const CourseTime = {
     }
 
     return result;
-  },
+  }
 
   /**
    * Return a display title for a given course ID.
    * Uses tutors-connect-courses.course_record.title when available, otherwise falls back to the ID.
    */
-  async getCourseTitle(courseId: string): Promise<string> {
+  static async getCourseTitle(courseId: string): Promise<string> {
     const supabase = getSupabase();
-    const { data, error } = await supabase.from("tutors-connect-courses").select("course_id, course_record").eq("course_id", courseId).maybeSingle();
+    const { data, error } = await supabase
+      .from("tutors-connect-courses")
+      .select("course_id, course_record")
+      .eq("course_id", courseId)
+      .maybeSingle();
 
     if (error || !data) {
       return courseId;
@@ -180,16 +185,25 @@ export const CourseTime = {
     const id = row.course_id?.trim() || courseId;
     const title = row.course_record?.title?.trim();
     return title && title.length > 0 ? title : id;
-  },
+  }
 
   /**
    * Retrieve learning records from the learning_records table.
    * Filters by student_id, course_id, and type (all required).
    * Returns an empty array if no records are found or on error.
    */
-  async getLearningRecords(studentId: string, courseId: string, type: string): Promise<LearningRecord[]> {
+  static async getLearningRecords(
+    studentId: string,
+    courseId: string,
+    type: string
+  ): Promise<LearningRecord[]> {
     const supabase = getSupabase();
-    let query = supabase.from("learning_records").select("*").eq("student_id", studentId).eq("course_id", courseId).eq("type", type);
+    let query = supabase
+      .from("learning_records")
+      .select("*")
+      .eq("student_id", studentId)
+      .eq("course_id", courseId)
+      .eq("type", type);
 
     const { data, error } = await query;
 
@@ -199,14 +213,14 @@ export const CourseTime = {
     }
 
     return (data as LearningRecord[]) ?? [];
-  },
+  }
 
   /**
    * Retrieve calendar data for a given course (or all courses if courseId is not provided).
    * Enriches entries with student full names from tutors-connect-users.
    * Throws an error if the database query fails.
    */
-  async getCalendarData(courseId?: string): Promise<CalendarEntry[]> {
+  static async getCalendarData(courseId?: string): Promise<CalendarEntry[]> {
     const supabase = getSupabase();
     let query = supabase.from("calendar").select("*").order("id", { ascending: true });
 
@@ -259,16 +273,21 @@ export const CourseTime = {
       ...entry,
       full_name: nameMap[entry.studentid] ?? entry.studentid
     }));
-  },
+  }
 
   /**
    * Retrieve all learning records for a given course (all students, type="lab").
    * Enriches records with student full names from tutors-connect-users.
    * Throws an error if the database query fails.
    */
-  async getAllLearningRecordsForCourse(courseId: string): Promise<LearningRecord[]> {
+  static async getAllLearningRecordsForCourse(courseId: string): Promise<LearningRecord[]> {
     const supabase = getSupabase();
-    let query = supabase.from("learning_records").select("*").eq("course_id", courseId).eq("type", "lab").order("date_last_accessed", { ascending: false });
+    let query = supabase
+      .from("learning_records")
+      .select("*")
+      .eq("course_id", courseId)
+      .eq("type", "lab")
+      .order("date_last_accessed", { ascending: false });
 
     const { data, error } = await query;
 
@@ -295,14 +314,18 @@ export const CourseTime = {
     // Enrich learning records with student full names (similar to calendar entries)
     const studentIds = Array.from(new Set(learningRecords.map((r) => r.student_id).filter(Boolean)));
     if (studentIds.length > 0) {
-      const { data: userRows, error: userError } = await supabase.from("tutors-connect-users").select("github_id, full_name").in("github_id", studentIds);
+      const { data: userRows, error: userError } = await supabase
+        .from("tutors-connect-users")
+        .select("github_id, full_name")
+        .in("github_id", studentIds);
 
       if (!userError && userRows) {
         const nameMap: Record<string, string> = {};
         for (const row of userRows as TutorsConnectUser[]) {
           const key = row.github_id?.trim();
           if (!key) continue;
-          const displayName = row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
+          const displayName =
+            row.full_name && row.full_name.trim().length > 0 ? row.full_name.trim() : key;
           nameMap[key] = displayName;
         }
 
@@ -316,4 +339,4 @@ export const CourseTime = {
 
     return learningRecords;
   }
-};
+}

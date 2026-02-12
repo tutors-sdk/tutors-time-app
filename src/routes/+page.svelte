@@ -12,7 +12,8 @@
     dialogError = null;
     dialogLoading = true;
     try {
-      await CourseTime.loadCalendar(courseId, startDate, endDate);
+      const courseTime = new CourseTime();
+      await courseTime.loadCalendar(courseId, startDate, endDate);
       dialogOpen = false;
       goto(`/${courseId}/calendar/byweek`);
     } catch (e) {
