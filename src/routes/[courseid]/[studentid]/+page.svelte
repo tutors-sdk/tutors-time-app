@@ -1,7 +1,6 @@
 <script lang="ts">
   import CalendarGrid from "$lib/components/calendar/CalendarGrid.svelte";
   import LabsGrid from "$lib/components/labs/LabsGrid.svelte";
-  import LabsMedianGrid from "$lib/components/labs/LabsMedianGrid.svelte";
   import { CourseTime } from "$lib/services/CourseTime";
   import type { StudentCalendar } from "$lib/types";
   import { onMount } from "svelte";
@@ -110,14 +109,7 @@
           <section class="visual-tab-viewport min-h-[220px] flex flex-col">
             <h2 class="text-xl font-semibold mb-2 shrink-0">Labs by lab</h2>
             <div class="flex-1 min-h-[180px]">
-              <LabsGrid model={studentCalendar.labsModel} mode="lab" studentId={studentDisplayName} />
-            </div>
-          </section>
-
-          <section class="visual-tab-viewport min-h-[220px] flex flex-col">
-            <h2 class="text-xl font-semibold mb-2 shrink-0">Lab median by week</h2>
-            <div class="flex-1 min-h-[180px]">
-              <LabsMedianGrid model={studentCalendar.labsModel} mode="week" />
+              <LabsGrid model={studentCalendar.labsModel} mode="lab" studentId={studentDisplayName} includeMedianRow />
             </div>
           </section>
         </div>

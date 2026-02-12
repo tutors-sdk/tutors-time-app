@@ -2,7 +2,7 @@
   import { createGrid, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
   import type { GridApi } from "ag-grid-community";
   import type { LabsModel } from "$lib/components/labs/LabsModel";
-  import type { LabRow, LabViewMode } from "$lib/components/labs/labUtils";
+  import type { LabRow, LabMedianRow, LabViewMode } from "$lib/components/labs/labUtils";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -11,16 +11,31 @@
     mode: LabViewMode;
     /** Optional: limit rows to a single student id (matches LabRow.studentid). */
     studentId?: string | null;
+    /** When true and mode is "lab", append the course median row (student view: show student + course median in same grid). */
+    includeMedianRow?: boolean;
   }
 
-  let { model, mode, studentId = null }: Props = $props();
+  let { model, mode, studentId = null, includeMedianRow = false }: Props = $props();
 
   let gridContainer = $state<HTMLDivElement | null>(null);
   let gridApi = $state<GridApi<LabRow> | null>(null);
 
   const view = $derived(mode === "lab" ? model.lab : model.step);
   const rows = $derived(
-    studentId ? view.rows.filter((row) => row.studentid === studentId) : view.rows
+    (() => {
+      let result = studentId ? view.rows.filter((row) => row.studentid === studentId) : view.rows;
+      if (includeMedianRow && mode === "lab") {
+        const medianRow = model.medianByLab.row;
+        if (medianRow) {
+          const combined: LabRow = {
+            ...medianRow,
+            studentid: "Course median"
+          };
+          result = [...result, combined];
+        }
+      }
+      return result;
+    })()
   );
 
   $effect(() => {
