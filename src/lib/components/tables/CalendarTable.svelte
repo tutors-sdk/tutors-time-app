@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CourseTime } from "$lib/services/CourseTime";
+  import { CourseTimeService } from "$lib/services/CourseTimeService";
   import type { CourseCalendar } from "$lib/types";
   import { onMount } from "svelte";
 
@@ -17,9 +17,9 @@
       return;
     }
     try {
-      const courseTime = new CourseTime();
-      course = await courseTime.loadCalendar(id, null, null);
-      error = course.error;
+      const courseTime = await CourseTimeService.loadCourse(id);
+      course = courseTime.courseData;
+      error = course?.error ?? null;
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to load calendar data";
     } finally {
