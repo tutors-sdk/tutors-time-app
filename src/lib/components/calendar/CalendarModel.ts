@@ -55,24 +55,31 @@ export class CalendarModel {
     const columnDefs: ColDef<CalendarRow>[] = [
       {
         field: "full_name",
-        headerName: "Student",
+        headerName: "Name",
         minWidth: 160,
         flex: 1,
         pinned: "left",
-        cellStyle: { paddingLeft: "4px" }
+        cellStyle: { paddingLeft: "4px" },
+        cellRenderer: (params) => {
+          const name = String(params.value ?? "");
+          const studentId = String((params.data as any)?.studentid ?? "");
+          const courseId = String((params.data as any)?.courseid ?? "");
+          if (!studentId || !courseId) return name;
+          const href = `/${courseId}/${studentId}`;
+          return `<a href="${href}" class="underline text-primary-600">${name}</a>`;
+        }
       },
       {
         field: "studentid",
-        headerName: "Student ID",
+        headerName: "Github",
         minWidth: 120,
         pinned: "left",
         cellStyle: { paddingLeft: "4px" },
         cellRenderer: (params) => {
           const studentId = String(params.value ?? "");
-          const courseId = String((params.data as any)?.courseid ?? "");
-          if (!studentId || !courseId) return studentId;
-          const href = `/${courseId}/${studentId}`;
-          return `<a href="${href}" class="underline text-primary-600">${studentId}</a>`;
+          if (!studentId) return studentId;
+          const href = `https://github.com/${studentId}`;
+          return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="underline text-primary-600">${studentId}</a>`;
         }
       },
       buildTotalSecondsColumn<CalendarRow>("totalSeconds", "Total"),
@@ -87,24 +94,31 @@ export class CalendarModel {
     const columnDefs: ColDef<CalendarRow>[] = [
       {
         field: "full_name",
-        headerName: "Student",
+        headerName: "Name",
         minWidth: 160,
         flex: 1,
         pinned: "left",
-        cellStyle: { paddingLeft: "4px" }
+        cellStyle: { paddingLeft: "4px" },
+        cellRenderer: (params) => {
+          const name = String(params.value ?? "");
+          const studentId = String((params.data as any)?.studentid ?? "");
+          const courseId = String((params.data as any)?.courseid ?? "");
+          if (!studentId || !courseId) return name;
+          const href = `/${courseId}/${studentId}`;
+          return `<a href="${href}" class="underline text-primary-600">${name}</a>`;
+        }
       },
       {
         field: "studentid",
-        headerName: "Student ID",
+        headerName: "Github",
         minWidth: 120,
         pinned: "left",
         cellStyle: { paddingLeft: "4px" },
         cellRenderer: (params) => {
           const studentId = String(params.value ?? "");
-          const courseId = String((params.data as any)?.courseid ?? "");
-          if (!studentId || !courseId) return studentId;
-          const href = `/${courseId}/${studentId}`;
-          return `<a href="${href}" class="underline text-primary-600">${studentId}</a>`;
+          if (!studentId) return studentId;
+          const href = `https://github.com/${studentId}`;
+          return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="underline text-primary-600">${studentId}</a>`;
         }
       },
       buildTotalSecondsColumn<CalendarRow>("totalSeconds", "Total"),
