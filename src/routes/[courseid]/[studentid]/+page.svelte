@@ -103,16 +103,16 @@
                 <table class="w-full border-collapse">
                   <thead>
                     <tr class="border-b-2 border-surface-300">
-                      <th class="text-left py-3 px-4 font-semibold">Name</th>
-                      <th class="text-left py-3 px-4 font-semibold">Github</th>
+                      <th class="text-left py-4 px-4 font-semibold">Name</th>
+                      <th class="text-left py-4 px-4 font-semibold">Github</th>
                       {#each weeks as week}
-                        <th class="text-center py-3 px-2 font-semibold min-w-[60px]">
-                          <div class="writing-vertical-rl">
+                        <th class="text-center py-4 px-1 font-semibold min-w-[28px] align-middle" style="height: 120px;">
+                          <div class="transform -rotate-90 whitespace-nowrap text-xs" style="height: 100%; display: flex; align-items: center; justify-content: center;">
                             {formatDateShort(week)}
                           </div>
                         </th>
                       {/each}
-                      <th class="text-right py-3 px-4 font-semibold">Total</th>
+                      <th class="text-right py-4 px-4 font-semibold">Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -131,7 +131,7 @@
                       {#each weeks as week}
                         {@const weekSeconds = studentRow[week] as number | undefined}
                         {@const weekBlocks = weekSeconds != null ? Math.round(weekSeconds / 30) : 0}
-                        <td class="py-3 px-2 text-center font-mono text-sm" style="background-color: {cellColorForMinutes(weekBlocks)}">
+                        <td class="py-3 px-1 text-center font-mono text-xs" style="background-color: {cellColorForMinutes(weekBlocks)}">
                           {formatTime(weekSeconds)}
                         </td>
                       {/each}
@@ -146,7 +146,7 @@
                         {#each weeks as week}
                           {@const weekSeconds = medianRow[week] as number | undefined}
                           {@const weekBlocks = weekSeconds != null ? Math.round(weekSeconds / 30) : 0}
-                          <td class="py-3 px-2 text-center font-mono text-sm" style="background-color: {cellColorForMinutes(weekBlocks)}">
+                          <td class="py-3 px-1 text-center font-mono text-xs" style="background-color: {cellColorForMinutes(weekBlocks)}">
                             {formatTime(weekSeconds)}
                           </td>
                         {/each}
