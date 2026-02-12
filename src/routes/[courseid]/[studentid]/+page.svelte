@@ -166,6 +166,7 @@
                     </tr>
                     <!-- Median Row -->
                     {#if medianRow}
+                      {@const totalBlocks = medianRow.totalSeconds ?? 0}
                       <tr class="border-b-2 border-surface-300 bg-surface-100">
                         <td class="py-3 px-4 font-semibold" style="width: 160px;">Course Median</td>
                         {#each weeks as week}
@@ -174,7 +175,6 @@
                             {formatLabTime(weekBlocks)}
                           </td>
                         {/each}
-                        {@const totalBlocks = medianRow.totalSeconds ?? 0}
                         <td class="py-3 px-4 text-right font-mono font-semibold" style="background-color: {cellColorForMinutes(totalBlocks)}">
                           {formatLabTime(medianRow.totalSeconds)}
                         </td>
