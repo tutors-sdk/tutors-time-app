@@ -4,7 +4,7 @@
   import type { StudentCalendar } from "$lib/types";
   import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
   import type { LabRow, LabMedianRow } from "$lib/components/labs/labUtils";
-  import { formatDateShort, formatTimeMinutesOnly, getDistinctSortedWeeks, cellColorForMinutes } from "$lib/components/calendar/calendarUtils";
+  import { formatDateShort, formatTimeMinutesOnly, cellColorForMinutes } from "$lib/components/calendar/calendarUtils";
   import { extractLabIdentifier } from "$lib/components/labs/labUtils";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
@@ -32,10 +32,13 @@
   // Get course median row
   const medianRow = $derived(studentCalendar?.calendarModel.medianByWeek.row ?? null);
 
-  // Get week columns (week Monday dates)
+  // Get week columns (week Monday dates) from CalendarModel columnDefs to match studentRow structure
   const weeks = $derived.by(() => {
-    if (!studentCalendar?.data) return [];
-    return getDistinctSortedWeeks(studentCalendar.data);
+    if (!studentCalendar?.calendarModel?.week?.columnDefs) return [];
+    // Extract week field names from columnDefs (excluding full_name, studentid, totalSeconds)
+    return studentCalendar.calendarModel.week.columnDefs
+      .map((col) => col.field as string)
+      .filter((field) => field && field !== "full_name" && field !== "studentid" && field !== "totalSeconds");
   });
 
   // Format time from seconds as minutes only
@@ -166,14 +169,14 @@
                       <tr class="border-b-2 border-surface-300 bg-surface-100">
                         <td class="py-3 px-4 font-semibold" style="width: 160px;">Course Median</td>
                         {#each weeks as week}
-                          {@const weekSeconds = medianRow[week] as number | undefined}
-                          {@const weekBlocks = weekSeconds != null ? Math.round(weekSeconds / 30) : 0}
-                          <td class="py-3 px-1 text-center font-mono text-xs" style="width: 36px; min-width: 36px; max-width: 36px; background-color: {cellColorForMinutes(weekBlocks)}">
-                            {formatTime(weekSeconds)}
+                          {@const weekBlocks = medianRow[week] as number | undefined}
+                          <td class="py-3 px-1 text-center font-mono text-xs" style="width: 36px; min-width: 36px; max-width: 36px; background-color: {cellColorForMinutes(weekBlocks ?? 0)}">
+                            {formatLabTime(weekBlocks)}
                           </td>
                         {/each}
-                        <td class="py-3 px-4 text-right font-mono font-semibold" style="background-color: {cellColorForMinutes(medianRow.totalSeconds != null ? Math.round(medianRow.totalSeconds / 30) : 0)}">
-                          {formatTime(medianRow.totalSeconds)}
+                        {@const totalBlocks = medianRow.totalSeconds ?? 0}
+                        <td class="py-3 px-4 text-right font-mono font-semibold" style="background-color: {cellColorForMinutes(totalBlocks)}">
+                          {formatLabTime(medianRow.totalSeconds)}
                         </td>
                       </tr>
                     {/if}
