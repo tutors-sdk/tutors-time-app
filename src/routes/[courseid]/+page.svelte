@@ -53,8 +53,8 @@
   <meta name="description" content="Calendar visualization for student course time tracking" />
 </svelte:head>
 
-<section class="p-2 h-[calc(100vh-4rem)]">
-  <div class="card p-4 h-full flex flex-col">
+<section class="h-full flex flex-col min-h-0">
+  <div class="card p-4 flex-1 flex flex-col min-h-0">
     <div class="flex justify-between items-center mb-4 shrink-0">
       <h1 class="text-3xl font-bold">
         Calendar Data {#if course} for {course.title}{/if}
