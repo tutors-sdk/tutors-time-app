@@ -16,6 +16,11 @@
   const calendarByWeek = $derived(studentCalendar?.calendarByWeek ?? null);
   const medianRow = $derived(studentCalendar?.courseMedianByWeek ?? null);
   const weeks = $derived(studentCalendar?.weeks ?? []);
+  /** Student's calendar row (by day) - for heatmap */
+  const calendarByDay = $derived(studentCalendar?.calendarByDay ?? null);
+  const dates = $derived(studentCalendar?.dates ?? []);
+  /** Course median row (by day) - for median heatmap */
+  const courseMedianByDay = $derived(studentCalendar?.courseMedianByDay ?? null);
   const studentLabRow = $derived(studentCalendar?.labsByLab ?? null);
   const labMedianRow = $derived(studentCalendar?.labsMedianByLab ?? null);
   const labColumns = $derived(studentCalendar?.labColumns ?? []);
@@ -62,13 +67,21 @@
 </svelte:head>
 
 <section class="p-2 h-[calc(100vh-4rem)] flex flex-col min-h-0">
-  <!-- Heatmap: full width of content area (breaks out of section padding) -->
-  {#if studentCalendar && calendarByWeek && weeks.length > 0}
-    <section class="heatmap-full-width shrink-0 py-4 -mx-2 w-[calc(100%+1rem)] min-w-0">
-      <div class="px-4">
-        <h2 class="text-2xl font-semibold mb-4">Activity Heatmap</h2>
-        <CalendarHeatmap {calendarByWeek} {weeks} />
-      </div>
+  <!-- Heatmaps: full width of content area (breaks out of section padding) -->
+  {#if studentCalendar && dates.length > 0}
+    <section class="heatmap-full-width shrink-0 py-4 -mx-2 w-[calc(100%+1rem)] min-w-0 space-y-6">
+      {#if calendarByDay}
+        <div class="px-4">
+          <h2 class="text-2xl font-semibold mb-4">Activity Heatmap – {studentCalendar.studentName}</h2>
+          <CalendarHeatmap calendarByDay={calendarByDay} {dates} elementId="student-activity-heatmap" />
+        </div>
+      {/if}
+      {#if courseMedianByDay}
+        <div class="px-4">
+          <h2 class="text-2xl font-semibold mb-4">Course Median Activity Heatmap</h2>
+          <CalendarHeatmap calendarByDay={courseMedianByDay} {dates} elementId="course-median-heatmap" />
+        </div>
+      {/if}
     </section>
   {/if}
 
