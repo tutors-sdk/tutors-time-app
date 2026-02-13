@@ -2,8 +2,7 @@ import type {
   CourseCalendar,
   LearningRecord,
   CalendarEntry,
-  CalendarEntryBase,
-  StudentCalendar
+  CalendarEntryBase
 } from "../types";
 import { CalendarModel } from "$lib/components/calendar/CalendarModel";
 import { filterByDateRange } from "$lib/components/calendar/calendarUtils";
@@ -73,96 +72,6 @@ export class CourseTime {
 
     this.courseData = course;
     return course;
-  }
-
-  /**
-   * Load calendar data for a single student within a course and date range.
-   * Does not mutate courseData; returns a StudentCalendar instance.
-   */
-  async loadStudentCalendar(
-    courseId: string,
-    studentId: string,
-    startDate: string | null,
-    endDate: string | null
-  ): Promise<StudentCalendar> {
-    const id = courseId.trim();
-    const sid = studentId.trim();
-
-    if (!id) throw new Error("Course ID is required");
-    if (!sid) throw new Error("Student ID is required");
-
-    const title = await CourseTime.getCourseTitle(id);
-
-    let result: StudentCalendar;
-
-    try {
-      const rawData = await CourseTime.getCalendarData(id);
-      const filteredByDate = filterByDateRange(rawData, startDate, endDate);
-
-      // All course dates in range (used to keep columns aligned with course-level view)
-      const allDates = Array.from(new Set(filteredByDate.map((e) => e.id))).sort();
-
-      // Actual entries for this student
-      const studentEntries = filteredByDate.filter((entry) => entry.studentid === sid);
-
-      // Pad missing dates for this student with zero-duration entries
-      const displayName =
-        studentEntries[0]?.full_name != null && studentEntries[0].full_name.trim().length > 0
-          ? studentEntries[0].full_name
-          : sid;
-
-      const paddedEntries: CalendarEntry[] = [...studentEntries];
-
-      for (const date of allDates) {
-        const hasEntry = studentEntries.some((entry) => entry.id === date);
-        if (!hasEntry) {
-          paddedEntries.push({
-            id: date,
-            studentid: sid,
-            courseid: id,
-            timeactive: 0,
-            pageloads: 0,
-            full_name: displayName
-          });
-        }
-      }
-
-      // Load all lab learning records for this course.
-      // We keep the full set so LabsGrid can show all lab columns,
-      // but will filter rows to this student in the UI.
-      let learningRecords: LearningRecord[] = [];
-      let learningRecordsError: string | null = null;
-      try {
-        learningRecords = await CourseTime.getAllLearningRecordsForCourse(id);
-      } catch (e) {
-        learningRecordsError = e instanceof Error ? e.message : "Failed to load learning records";
-      }
-
-      result = {
-        id,
-        studentId: sid,
-        title,
-        data: paddedEntries,
-        loading: false,
-        error: null,
-        calendarModel: new CalendarModel(filteredByDate, false, null),
-        labsModel: new LabsModel(learningRecords, false, learningRecordsError)
-      };
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to load calendar data";
-      result = {
-        id,
-        studentId: sid,
-        title,
-        data: [],
-        loading: false,
-        error: msg,
-        calendarModel: new CalendarModel([], false, msg),
-        labsModel: new LabsModel([], false, msg)
-      };
-    }
-
-    return result;
   }
 
   /**

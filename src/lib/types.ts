@@ -45,6 +45,8 @@ export interface LearningRecord {
 
 import type { CalendarModel } from "$lib/components/calendar/CalendarModel";
 import type { LabsModel } from "$lib/components/labs/LabsModel";
+import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
+import type { LabRow, LabMedianRow } from "$lib/components/labs/labUtils";
 
 // Aggregated per-course calendar view used by the grids
 export type CourseCalendar = {
@@ -62,18 +64,27 @@ export type CourseCalendar = {
   labsModel: LabsModel;
 };
 
-// Single-student calendar view for a given course
+// Single-student calendar view for a given course (extracted from CourseTime)
 export type StudentCalendar = {
-  id: string; // course ID
-  studentId: string; // student identifier (matches CalendarEntry.studentid)
-  title: string; // course display title
-  data: CalendarEntry[];
-  loading: boolean;
+  courseid: string;
+  courseTitle: string;
+  studentid: string;
+  studentName: string;
+  /** Student's calendar row (by week view) */
+  calendarByWeek: CalendarRow | null;
+  /** Week column field names for calendar display */
+  weeks: string[];
+  /** Course median row (by week) */
+  courseMedianByWeek: CalendarMedianRow | null;
+  /** Student's lab row (by lab view) */
+  labsByLab: LabRow | null;
+  /** Lab column field names for display */
+  labColumns: string[];
+  /** Course median lab row */
+  labsMedianByLab: LabMedianRow | null;
   error: string | null;
-  /** Prepared views for the calendar grid. */
-  calendarModel: CalendarModel;
-  /** Prepared lab/step views for LabsGrid. */
-  labsModel: LabsModel;
+  /** True if student has calendar or lab data */
+  hasData: boolean;
 };
 
 

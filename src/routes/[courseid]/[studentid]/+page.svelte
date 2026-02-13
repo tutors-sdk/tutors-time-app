@@ -1,11 +1,10 @@
 <script lang="ts">
-  import CalendarGrid from "$lib/components/calendar/CalendarGrid.svelte";
-  import { CourseTimeService } from "$lib/services/CourseTimeService";
   import type { StudentCalendar } from "$lib/types";
   import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
   import type { LabRow, LabMedianRow } from "$lib/components/labs/labUtils";
   import { formatDateShort, formatTimeMinutesOnly, cellColorForMinutes } from "$lib/components/calendar/calendarUtils";
   import { extractLabIdentifier } from "$lib/components/labs/labUtils";
+  import { CourseTimeService } from "$lib/services/CourseTimeService";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
 
@@ -13,68 +12,23 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
 
-  const studentDisplayName = $derived(
-    studentCalendar && studentCalendar.data.length > 0
-      ? studentCalendar.data[0].full_name || studentCalendar.studentId
-      : studentCalendar?.studentId ?? ""
-  );
+  const studentRow = $derived(studentCalendar?.calendarByWeek ?? null);
+  const medianRow = $derived(studentCalendar?.courseMedianByWeek ?? null);
+  const weeks = $derived(studentCalendar?.weeks ?? []);
+  const studentLabRow = $derived(studentCalendar?.labsByLab ?? null);
+  const labMedianRow = $derived(studentCalendar?.labsMedianByLab ?? null);
+  const labColumns = $derived(studentCalendar?.labColumns ?? []);
 
-  // Get student row from week data
-  const studentRow = $derived.by<CalendarRow | null>(() => {
-    const calendar = studentCalendar;
-    if (!calendar?.calendarModel?.week?.rows || !calendar.studentId) return null;
-    const studentId = calendar.studentId;
-    return calendar.calendarModel.week.rows.find(
-      (r) => r.studentid === studentId
-    ) ?? null;
-  });
-
-  // Get course median row
-  const medianRow = $derived(studentCalendar?.calendarModel.medianByWeek.row ?? null);
-
-  // Get week columns (week Monday dates) from CalendarModel columnDefs to match studentRow structure
-  const weeks = $derived.by(() => {
-    if (!studentCalendar?.calendarModel?.week?.columnDefs) return [];
-    // Extract week field names from columnDefs (excluding full_name, studentid, totalSeconds)
-    return studentCalendar.calendarModel.week.columnDefs
-      .map((col) => col.field as string)
-      .filter((field) => field && field !== "full_name" && field !== "studentid" && field !== "totalSeconds");
-  });
-
-  // Format time from seconds as minutes only
   function formatTime(seconds: number | undefined): string {
     if (seconds == null || seconds === 0) return "—";
     const minutes = Math.round(seconds / 60);
     return `${minutes}`;
   }
 
-  // Format lab time from 30-second blocks as minutes only
   function formatLabTime(blocks: number | undefined): string {
     if (blocks == null || blocks === 0) return "—";
     return formatTimeMinutesOnly(blocks);
   }
-
-  // Get student lab row (filter by display name since learning records use full_name)
-  const studentLabRow = $derived.by<LabRow | null>(() => {
-    const calendar = studentCalendar;
-    if (!calendar?.labsModel?.lab?.rows) return null;
-    const displayName = studentDisplayName;
-    return calendar.labsModel.lab.rows.find(
-      (r) => r.studentid === displayName
-    ) ?? null;
-  });
-
-  // Get course median lab row
-  const labMedianRow = $derived(studentCalendar?.labsModel?.medianByLab?.row ?? null);
-
-  // Get lab column IDs (extract from columnDefs, excluding studentid and totalMinutes)
-  const labColumns = $derived.by(() => {
-    if (!studentCalendar?.labsModel?.lab?.columnDefs) return [];
-    return studentCalendar.labsModel.lab.columnDefs
-      .map((col) => col.field as string)
-      .filter((field) => field !== "studentid" && field !== "totalMinutes");
-  });
-
 
   onMount(async () => {
     const rawCourseId: string | undefined = $page.params.courseid as string | undefined;
@@ -118,7 +72,7 @@
           <p class="font-bold">Error loading student calendar</p>
           <p class="text-sm">{error}</p>
         </div>
-      {:else if studentCalendar && !studentCalendar.calendarModel.hasData && !studentCalendar.labsModel.hasData}
+      {:else if studentCalendar && !studentCalendar.hasData}
         <div class="flex items-center justify-center flex-1">
           <p class="text-lg text-surface-600">
             No calendar or lab data found for this student in this course.
@@ -127,7 +81,7 @@
       {:else if studentCalendar}
         <div class="flex flex-col gap-6 flex-1 min-h-0 overflow-auto">
           <!-- Calendar Table -->
-          {#if studentCalendar.calendarModel.hasData && studentRow}
+          {#if studentRow}
             <section class="card p-6">
               <h2 class="text-2xl font-semibold mb-4">Calendar Activity by Week</h2>
               <div class="overflow-x-auto">
@@ -149,7 +103,7 @@
                     <!-- Student Row -->
                     <tr class="border-b border-surface-200 hover:bg-surface-50">
                       <td class="py-3 px-4" style="width: 160px;">
-                        <a href="/{studentCalendar.id}/{studentCalendar.studentId}" class="underline text-primary-600">
+                        <a href="/{studentCalendar.courseid}/{studentCalendar.studentid}" class="underline text-primary-600">
                           {studentRow.full_name}
                         </a>
                       </td>
@@ -187,7 +141,7 @@
           {/if}
 
           <!-- Labs Table -->
-          {#if studentCalendar.labsModel.hasData && studentLabRow}
+          {#if studentLabRow}
             <section class="card p-6">
               <h2 class="text-2xl font-semibold mb-4">Lab Activity by Lab</h2>
               <div class="overflow-x-auto">
@@ -209,7 +163,7 @@
                     <!-- Student Row -->
                     <tr class="border-b border-surface-200 hover:bg-surface-50">
                       <td class="py-3 px-4" style="width: 160px;">
-                        <a href="https://github.com/{studentCalendar.studentId}" target="_blank" rel="noopener noreferrer" class="underline text-primary-600">
+                        <a href="https://github.com/{studentCalendar.studentid}" target="_blank" rel="noopener noreferrer" class="underline text-primary-600">
                           {studentLabRow.studentid}
                         </a>
                       </td>
@@ -248,4 +202,3 @@
     </div>
   </div>
 </section>
-

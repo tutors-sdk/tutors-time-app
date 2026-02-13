@@ -39,8 +39,8 @@ export const CourseTimeService = {
   },
 
   /**
-   * Load calendar data for a single student within a course and date range.
-   * Returns a StudentCalendar instance with calendar and lab data for the student.
+   * Load calendar data for a single student within a course.
+   * Calls loadCourse to get CourseTime, then extracts student-specific data from the model.
    */
   async loadStudentCalendar(
     courseId: string,
@@ -54,10 +54,63 @@ export const CourseTimeService = {
     if (!trimmedCourseId) throw new Error("Course ID is required");
     if (!trimmedStudentId) throw new Error("Student ID is required");
 
-    const normalizedStart = startDate && startDate.trim() ? startDate.trim() : null;
-    const normalizedEnd = endDate && endDate.trim() ? endDate.trim() : null;
+    const courseTime = await this.loadCourse(trimmedCourseId, startDate ?? null, endDate ?? null);
+    const course = courseTime.courseData;
 
-    const courseTime = new CourseTime();
-    return await courseTime.loadStudentCalendar(trimmedCourseId, trimmedStudentId, normalizedStart, normalizedEnd);
+    if (!course) {
+      return {
+        courseid: trimmedCourseId,
+        courseTitle: trimmedCourseId,
+        studentid: trimmedStudentId,
+        studentName: trimmedStudentId,
+        calendarByWeek: null,
+        weeks: [],
+        courseMedianByWeek: null,
+        labsByLab: null,
+        labColumns: [],
+        labsMedianByLab: null,
+        error: "Failed to load course data",
+        hasData: false
+      };
+    }
+
+    const calModel = course.calendarModel;
+    const labsModel = course.labsModel;
+
+    const studentCalRow = calModel.week.rows.find((r) => r.studentid === trimmedStudentId) ?? null;
+    const studentName = studentCalRow?.full_name ?? trimmedStudentId;
+
+    const weeks =
+      calModel.week.columnDefs
+        ?.map((c) => c.field as string)
+        .filter((f) => f && f !== "full_name" && f !== "studentid" && f !== "totalSeconds") ?? [];
+
+    const studentLabRow =
+      labsModel.lab.rows.find((r) => r.studentid === studentName) ??
+      labsModel.lab.rows.find((r) => r.studentid === trimmedStudentId) ??
+      null;
+
+    const labColumns =
+      labsModel.lab.columnDefs
+        ?.map((c) => c.field as string)
+        .filter((f) => f && f !== "studentid" && f !== "totalMinutes") ?? [];
+
+    const hasCalData = studentCalRow != null && calModel.hasData;
+    const hasLabData = studentLabRow != null && labsModel.hasData;
+
+    return {
+      courseid: course.id,
+      courseTitle: course.title,
+      studentid: trimmedStudentId,
+      studentName,
+      calendarByWeek: studentCalRow,
+      weeks,
+      courseMedianByWeek: calModel.medianByWeek.row ?? null,
+      labsByLab: studentLabRow,
+      labColumns,
+      labsMedianByLab: labsModel.medianByLab.row ?? null,
+      error: course.error,
+      hasData: hasCalData || hasLabData
+    };
   }
 };
