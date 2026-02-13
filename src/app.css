@@ -29,6 +29,13 @@
   min-height: 320px;
 }
 
+/* Heatmap full viewport width – override Heat.js default max-width */
+.heatmap-full-width .heat-js,
+.heatmap-full-width [data-heat-js] .heat-js {
+  max-width: none !important;
+  width: 100% !important;
+}
+
 /* Column headers: slightly smaller font */
 .ag-theme-quartz .ag-header-cell-text {
   font-size: 0.8rem;

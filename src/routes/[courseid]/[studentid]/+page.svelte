@@ -3,6 +3,7 @@
   import type { LabRow, LabMedianRow } from "$lib/components/labs/labUtils";
   import { formatDateShort, formatTimeMinutesOnly, cellColorForMinutes } from "$lib/components/calendar/calendarUtils";
   import { extractLabIdentifier } from "$lib/components/labs/labUtils";
+  import CalendarHeatmap from "$lib/components/calendar/CalendarHeatmap.svelte";
   import { CourseTimeService } from "$lib/services/CourseTimeService";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
@@ -60,8 +61,18 @@
   <meta name="description" content="Single-student calendar view for a specific course" />
 </svelte:head>
 
-<section class="p-2 h-[calc(100vh-4rem)]">
-  <div class="card p-4 h-full flex flex-col">
+<section class="p-2 h-[calc(100vh-4rem)] flex flex-col min-h-0">
+  <!-- Heatmap: full width of content area (breaks out of section padding) -->
+  {#if studentCalendar && calendarByWeek && weeks.length > 0}
+    <section class="heatmap-full-width shrink-0 py-4 -mx-2 w-[calc(100%+1rem)] min-w-0">
+      <div class="px-4">
+        <h2 class="text-2xl font-semibold mb-4">Activity Heatmap</h2>
+        <CalendarHeatmap {calendarByWeek} {weeks} />
+      </div>
+    </section>
+  {/if}
+
+  <div class="card p-4 flex-1 flex flex-col min-h-0 overflow-auto min-w-0">
     <div class="flex flex-col flex-1 min-h-0">
       {#if loading}
         <div class="flex items-center justify-center flex-1">
