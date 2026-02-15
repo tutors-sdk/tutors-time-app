@@ -1,5 +1,6 @@
 import { CourseTime } from "./CourseTime";
 import type { StudentCalendar } from "../types";
+import { buildLabRowByDay, buildMedianByDay } from "$lib/components/labs/labUtils";
 
 const courseMap = new Map<string, CourseTime>();
 
@@ -72,6 +73,8 @@ export const CourseTimeService = {
         labsByLab: null,
         labColumns: [],
         labsMedianByLab: null,
+        labsByDay: null,
+        labsMedianByDay: null,
         error: "Failed to load course data",
         hasData: false
       };
@@ -104,6 +107,21 @@ export const CourseTimeService = {
         ?.map((c) => c.field as string)
         .filter((f) => f && f !== "studentid" && f !== "full_name" && f !== "totalMinutes") ?? [];
 
+    const labsByDay =
+      dates.length > 0 && course.learningRecords.length > 0
+        ? buildLabRowByDay(
+            course.learningRecords,
+            trimmedStudentId,
+            dates,
+            studentName
+          )
+        : null;
+
+    const labsMedianByDay =
+      dates.length > 0 && course.learningRecords.length > 0
+        ? buildMedianByDay(course.learningRecords, course.id, dates)
+        : null;
+
     const hasCalData = (studentCalRowWeek != null || studentCalRowDay != null) && calModel.hasData;
     const hasLabData = studentLabRow != null && labsModel.hasData;
 
@@ -121,6 +139,8 @@ export const CourseTimeService = {
       labsByLab: studentLabRow,
       labColumns,
       labsMedianByLab: labsModel.medianByLab.row ?? null,
+      labsByDay,
+      labsMedianByDay,
       error: course.error,
       hasData: hasCalData || hasLabData
     };

@@ -89,6 +89,10 @@ export type StudentCalendar = {
   labColumns: string[];
   /** Course median lab row */
   labsMedianByLab: LabMedianRow | null;
+  /** Student's lab row (by day) – for lab activity heatmap */
+  labsByDay: LabRow | null;
+  /** Course median lab row (by day) – for lab median heatmap */
+  labsMedianByDay: LabMedianRow | null;
   error: string | null;
   /** True if student has calendar or lab data */
   hasData: boolean;

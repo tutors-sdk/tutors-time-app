@@ -23,6 +23,10 @@
   const studentLabRow = $derived(studentCalendar?.labsByLab ?? null);
   const labMedianRow = $derived(studentCalendar?.labsMedianByLab ?? null);
   const labColumns = $derived(studentCalendar?.labColumns ?? []);
+  /** Student's lab row (by day) – for lab activity heatmap */
+  const labsByDay = $derived(studentCalendar?.labsByDay ?? null);
+  /** Course median lab row (by day) – for lab median heatmap */
+  const labsMedianByDay = $derived(studentCalendar?.labsMedianByDay ?? null);
 
   onMount(async () => {
     const rawCourseId: string | undefined = $page.params.courseid as string | undefined;
@@ -60,7 +64,7 @@
     <section class="heatmap-full-width shrink-0 py-4 -mx-2 w-[calc(100%+1rem)] min-w-0 space-y-6">
       {#if calendarByDay}
         <div class="px-4">
-          <h2 class="text-2xl font-semibold mb-4">Activity Heatmap – {studentCalendar.studentName}</h2>
+          <h2 class="text-2xl font-semibold mb-4">Calendar Activity Heatmap – {studentCalendar.studentName}</h2>
           <CalendarHeatmap calendarByDay={calendarByDay} {dates} elementId="student-activity-heatmap" />
         </div>
       {/if}
@@ -68,6 +72,18 @@
         <div class="px-4">
           <h2 class="text-2xl font-semibold mb-4">Course Median Activity Heatmap</h2>
           <CalendarHeatmap calendarByDay={courseMedianByDay} {dates} elementId="course-median-heatmap" />
+        </div>
+      {/if}
+      {#if labsByDay}
+        <div class="px-4">
+          <h2 class="text-2xl font-semibold mb-4">Lab Activity by Day – {studentCalendar.studentName}</h2>
+          <CalendarHeatmap calendarByDay={labsByDay} {dates} elementId="student-lab-heatmap" />
+        </div>
+      {/if}
+      {#if labsMedianByDay}
+        <div class="px-4">
+          <h2 class="text-2xl font-semibold mb-4">Lab Median Activity by Day</h2>
+          <CalendarHeatmap calendarByDay={labsMedianByDay} {dates} elementId="lab-median-heatmap" />
         </div>
       {/if}
     </section>
