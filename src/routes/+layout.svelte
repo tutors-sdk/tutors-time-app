@@ -1,8 +1,8 @@
 <script lang="ts">
   import "../app.css";
   import { AppBar } from "@skeletonlabs/skeleton-svelte";
-  import Icon from "@iconify/svelte";
   import { goto } from "$app/navigation";
+  import CourseCard from "$lib/components/CourseCard.svelte";
   import StudentCard from "$lib/components/StudentCard.svelte";
 
   let { children, data } = $props();
@@ -12,37 +12,26 @@
 </script>
 
 <AppBar>
-  <AppBar.Toolbar class="grid-cols-[1fr_2fr_1fr]">
+  <AppBar.Toolbar class="grid-cols-[1fr_2fr_1fr] h-16 min-h-16">
     <AppBar.Lead class="justify-start">
       {#if data.courseId}
         <button
           type="button"
-          class="btn preset-outlined"
+          class="btn preset-outlined text-center leading-tight"
           onclick={() => goto("/")}
           aria-label="Change course"
         >
-          Change course
+          Change<br />Course
         </button>
       {/if}
     </AppBar.Lead>
-    <AppBar.Headline class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0 text-left h-full min-w-0">
-      {#if data.courseIcon}
-        <Icon
-          icon={data.courseIcon.type}
-          class="h-full w-auto shrink-0 row-span-2 self-center"
-          style={data.courseIcon.color ? `color: ${data.courseIcon.color}` : undefined}
-        />
-      {:else if data.courseImg}
-        <img
-          src={data.courseImg}
-          alt=""
-          class="size-14 rounded object-contain shrink-0 row-span-2 self-center"
-        />
-      {/if}
-      <p class="font-semibold truncate max-w-full">{title}</p>
-      {#if subtitle}
-        <p class="text-sm text-surface-600 truncate max-w-full">{subtitle}</p>
-      {/if}
+    <AppBar.Headline class="h-full min-w-0">
+      <CourseCard
+        {title}
+        subtitle={subtitle || null}
+        courseIcon={data.courseIcon ?? null}
+        courseImg={data.courseImg ?? null}
+      />
     </AppBar.Headline>
     <AppBar.Trail class="justify-end">
       {#if data.studentName}
