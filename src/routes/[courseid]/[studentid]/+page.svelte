@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { StudentCalendar } from "$lib/types";
   import CalendarHeatmap from "$lib/components/calendar/CalendarHeatmap.svelte";
-  import StudentCard from "$lib/components/StudentCard.svelte";
   import StudentCalendarTable from "$lib/components/tables/StudentCalendarTable.svelte";
   import StudentLabTable from "$lib/components/tables/StudentLabTable.svelte";
   import { CourseTimeService } from "$lib/services/CourseTimeService";
@@ -64,15 +63,9 @@
   {#if studentCalendar && dates.length > 0}
     <section class="heatmap-full-width shrink-0 py-4 -mx-2 w-[calc(100%+1rem)] min-w-0 space-y-6">
       {#if calendarByDay}
-        <div class="px-4 flex flex-col sm:flex-row gap-4 items-start">
-          <StudentCard
-            fullName={studentCalendar.studentName}
-            avatarUrl={studentCalendar.avatarUrl}
-          />
-          <div class="flex-1 min-w-0 w-full">
-            <h2 class="text-2xl font-semibold mb-4">Calendar Activity Heatmap – {studentCalendar.studentName}</h2>
-            <CalendarHeatmap calendarByDay={calendarByDay} {dates} elementId="student-activity-heatmap" />
-          </div>
+        <div class="px-4">
+          <h2 class="text-2xl font-semibold mb-4">Calendar Activity Heatmap – {studentCalendar.studentName}</h2>
+          <CalendarHeatmap calendarByDay={calendarByDay} {dates} elementId="student-activity-heatmap" />
         </div>
       {/if}
       {#if courseMedianByDay}

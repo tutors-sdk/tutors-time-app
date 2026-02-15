@@ -16,6 +16,23 @@ async function getAvatarUrl(githubId: string): Promise<string | null> {
   return row?.avatar_url ?? null;
 }
 
+/** Fetch student display name and avatar for app bar (used when on student route). */
+export async function getStudentDisplayInfo(
+  studentId: string
+): Promise<{ studentName: string; avatarUrl: string | null }> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("tutors-connect-users")
+    .select("full_name, avatar_url")
+    .eq("github_id", studentId.trim())
+    .maybeSingle();
+  const row = data as { full_name?: string | null; avatar_url?: string | null } | null;
+  const studentName =
+    row?.full_name && String(row.full_name).trim().length > 0 ? String(row.full_name).trim() : studentId.trim();
+  const avatarUrl = row?.avatar_url ?? null;
+  return { studentName, avatarUrl };
+}
+
 export const CourseTimeService = {
   /**
    * Load a course by ID. Returns cached CourseTime if already loaded (when no date filter),

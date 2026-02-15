@@ -2,6 +2,7 @@
   import "../app.css";
   import { AppBar } from "@skeletonlabs/skeleton-svelte";
   import { goto } from "$app/navigation";
+  import StudentCard from "$lib/components/StudentCard.svelte";
 
   let { children, data } = $props();
 
@@ -29,7 +30,11 @@
         <p class="text-sm text-surface-600 truncate max-w-full">{subtitle}</p>
       {/if}
     </AppBar.Headline>
-    <AppBar.Trail />
+    <AppBar.Trail class="justify-end">
+      {#if data.studentName}
+        <StudentCard fullName={data.studentName} avatarUrl={data.avatarUrl} compact />
+      {/if}
+    </AppBar.Trail>
   </AppBar.Toolbar>
 </AppBar>
 

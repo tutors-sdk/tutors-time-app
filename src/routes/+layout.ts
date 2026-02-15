@@ -1,5 +1,6 @@
 import type { LayoutLoad } from "./$types";
 import { CourseTime } from "$lib/services/CourseTime";
+import { getStudentDisplayInfo } from "$lib/services/CourseTimeService";
 
 /** Derive a human-readable view type from the current pathname. */
 function getViewType(pathname: string): string {
@@ -46,9 +47,26 @@ export const load: LayoutLoad = async ({ url }) => {
     }
   }
 
+  let studentName: string | null = null;
+  let avatarUrl: string | null = null;
+  const isStudentRoute =
+    segments.length === 2 && segments[1] !== "calendar" && segments[1] !== "lab";
+  if (isStudentRoute && courseId.trim()) {
+    const studentId = segments[1] ?? "";
+    try {
+      const info = await getStudentDisplayInfo(studentId);
+      studentName = info.studentName;
+      avatarUrl = info.avatarUrl;
+    } catch {
+      studentName = studentId;
+    }
+  }
+
   return {
     courseTitle,
     viewType: viewType || null,
-    courseId: courseId.trim() || null
+    courseId: courseId.trim() || null,
+    studentName,
+    avatarUrl
   };
 };
