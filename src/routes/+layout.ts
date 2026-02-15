@@ -39,9 +39,14 @@ export const load: LayoutLoad = async ({ url }) => {
   const viewType = getViewType(pathname);
 
   let courseTitle: string | null = null;
+  let courseImg: string | null = null;
+  let courseIcon: { type: string; color: string | null } | null = null;
   if (courseId.trim()) {
     try {
-      courseTitle = await CourseTime.getCourseTitle(courseId);
+      const info = await CourseTime.getCourseDisplayInfo(courseId);
+      courseTitle = info.title;
+      courseImg = info.img;
+      courseIcon = info.icon;
     } catch {
       courseTitle = courseId;
     }
@@ -64,6 +69,8 @@ export const load: LayoutLoad = async ({ url }) => {
 
   return {
     courseTitle,
+    courseImg,
+    courseIcon,
     viewType: viewType || null,
     courseId: courseId.trim() || null,
     studentName,

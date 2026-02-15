@@ -75,10 +75,16 @@ export class CourseTime {
   }
 
   /**
-   * Return a display title for a given course ID.
-   * Uses tutors-connect-courses.course_record.title when available, otherwise falls back to the ID.
+   * Return display title, image or icon for a course (for AppBar).
+   * Uses tutors-connect-courses.course_record.title, .img, and .icon (type + color).
    */
-  static async getCourseTitle(courseId: string): Promise<string> {
+  static async getCourseDisplayInfo(
+    courseId: string
+  ): Promise<{
+    title: string;
+    img: string | null;
+    icon: { type: string; color: string | null } | null;
+  }> {
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from("tutors-connect-courses")
@@ -87,13 +93,45 @@ export class CourseTime {
       .maybeSingle();
 
     if (error || !data) {
-      return courseId;
+      return { title: courseId, img: null, icon: null };
     }
 
     const row = data as TutorsConnectCourse;
     const id = row.course_id?.trim() || courseId;
-    const title = row.course_record?.title?.trim();
-    return title && title.length > 0 ? title : id;
+    const record = row.course_record;
+    const title =
+      record?.title && String(record.title).trim().length > 0
+        ? String(record.title).trim()
+        : id;
+    const img =
+      record?.img != null && String(record.img).trim().length > 0
+        ? String(record.img).trim()
+        : null;
+    const rawIcon = record?.icon;
+    const icon =
+      rawIcon != null &&
+      typeof rawIcon === "object" &&
+      typeof (rawIcon as { type?: unknown }).type === "string" &&
+      String((rawIcon as { type: string }).type).trim().length > 0
+        ? {
+            type: String((rawIcon as { type: string }).type).trim(),
+            color:
+              typeof (rawIcon as { color?: unknown }).color === "string" &&
+              String((rawIcon as { color: string }).color).trim().length > 0
+                ? String((rawIcon as { color: string }).color).trim()
+                : null
+          }
+        : null;
+    return { title, img, icon };
+  }
+
+  /**
+   * Return a display title for a given course ID.
+   * Uses tutors-connect-courses.course_record.title when available, otherwise falls back to the ID.
+   */
+  static async getCourseTitle(courseId: string): Promise<string> {
+    const { title } = await CourseTime.getCourseDisplayInfo(courseId);
+    return title;
   }
 
   /**

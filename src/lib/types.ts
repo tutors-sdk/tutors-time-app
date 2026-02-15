@@ -12,14 +12,25 @@ export interface CalendarEntry extends CalendarEntryBase {
 }
 
 // Supabase `tutors-connect-courses` table model
+// create table public."tutors-connect-courses" (
+//   course_id text not null,
+//   visited_at timestamptz not null default now(),
+//   visit_count bigint null default 0,
+//   course_record json null,
+//   primary key (course_id)
+// )
 export interface TutorsConnectCourse {
-  course_id: string; // text (primary key)
-  visited_at: string | null; // timestamptz
-  visit_count: number | null; // int8 / bigint
+  course_id: string;
+  visited_at: string; // timestamptz not null (ISO string)
+  visit_count: number | null; // bigint null
   course_record: {
     title?: string;
-    [key: string]: any; // Allow other fields in JSON
-  } | null; // json
+    /** Course image URL (displayed in AppBar when no icon) */
+    img?: string | null;
+    /** Course icon (Iconify): type = icon id, color = optional CSS color */
+    icon?: { type: string; color?: string } | null;
+    [key: string]: unknown;
+  } | null; // json null
 }
 
 // Supabase `tutors-connect-users` table model
