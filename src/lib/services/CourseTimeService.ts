@@ -1,6 +1,6 @@
 import { CourseTime } from "./CourseTime";
 import { getSupabase } from "./supabase";
-import type { StudentCalendar } from "../types";
+import type { StudentCalendar, CourseCalendar } from "../types";
 import { buildLabRowByDay, buildMedianByDay } from "$lib/components/labs/labUtils";
 
 const courseMap = new Map<string, CourseTime>();
@@ -95,17 +95,11 @@ export const CourseTimeService = {
         studentid: trimmedStudentId,
         studentName: trimmedStudentId,
         avatarUrl,
+        course: null,
         calendarByWeek: null,
-        weeks: [],
-        courseMedianByWeek: null,
         calendarByDay: null,
-        dates: [],
-        courseMedianByDay: null,
         labsByLab: null,
-        labColumns: [],
-        labsMedianByLab: null,
         labsByDay: null,
-        labsMedianByDay: null,
         error: "Failed to load course data",
         hasData: false
       };
@@ -118,11 +112,6 @@ export const CourseTimeService = {
     const studentCalRowDay = calModel.day.rows.find((r) => r.studentid === trimmedStudentId) ?? null;
     const studentName = studentCalRowWeek?.full_name ?? trimmedStudentId;
 
-    const weeks =
-      calModel.week.columnDefs
-        ?.map((c) => c.field as string)
-        .filter((f) => f && f !== "full_name" && f !== "studentid" && f !== "totalSeconds") ?? [];
-
     const dates =
       calModel.day.columnDefs
         ?.map((c) => c.field as string)
@@ -132,11 +121,6 @@ export const CourseTimeService = {
       labsModel.lab.rows.find((r) => r.studentid === trimmedStudentId) ??
       labsModel.lab.rows.find((r) => r.studentid === studentName) ??
       null;
-
-    const labColumns =
-      labsModel.lab.columnDefs
-        ?.map((c) => c.field as string)
-        .filter((f) => f && f !== "studentid" && f !== "full_name" && f !== "totalMinutes") ?? [];
 
     const labsByDay =
       dates.length > 0 && course.learningRecords.length > 0
@@ -158,23 +142,22 @@ export const CourseTimeService = {
 
     const avatarUrl = await getAvatarUrl(trimmedStudentId);
 
+    const courseWithMedians: CourseCalendar = {
+      ...course,
+      labsMedianByDay
+    };
+
     return {
       courseid: course.id,
       courseTitle: course.title,
       studentid: trimmedStudentId,
       studentName,
       avatarUrl,
+      course: courseWithMedians,
       calendarByWeek: studentCalRowWeek,
-      weeks,
-      courseMedianByWeek: calModel.medianByWeek.row ?? null,
       calendarByDay: studentCalRowDay,
-      dates,
-      courseMedianByDay: calModel.medianByDay.row ?? null,
       labsByLab: studentLabRow,
-      labColumns,
-      labsMedianByLab: labsModel.medianByLab.row ?? null,
       labsByDay,
-      labsMedianByDay,
       error: course.error,
       hasData: hasCalData || hasLabData
     };

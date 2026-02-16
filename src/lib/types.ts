@@ -74,6 +74,8 @@ export type CourseCalendar = {
   calendarModel: CalendarModel;
   /** Prepared lab/step views for LabsGrid. Initialised in loadCalendar. */
   labsModel: LabsModel;
+  /** Lab median by day (from learning records). Set when dates available (e.g. in student view). */
+  labsMedianByDay?: LabMedianRow | null;
 };
 
 // Single-student calendar view for a given course (extracted from CourseTime)
@@ -84,28 +86,16 @@ export type StudentCalendar = {
   studentName: string;
   /** Student avatar URL from tutors-connect-users (null if not set or fetch failed) */
   avatarUrl: string | null;
+  /** Loaded course data – use course.calendarModel / course.labsModel for all median values */
+  course: CourseCalendar | null;
   /** Student's calendar row (by week view) */
   calendarByWeek: CalendarRow | null;
-  /** Week column field names for calendar display */
-  weeks: string[];
-  /** Course median row (by week) */
-  courseMedianByWeek: CalendarMedianRow | null;
   /** Student's calendar row (by day view) */
   calendarByDay: CalendarRow | null;
-  /** Date column field names for calendar-by-day display */
-  dates: string[];
-  /** Course median row (by day) */
-  courseMedianByDay: CalendarMedianRow | null;
   /** Student's lab row (by lab view) */
   labsByLab: LabRow | null;
-  /** Lab column field names for display */
-  labColumns: string[];
-  /** Course median lab row */
-  labsMedianByLab: LabMedianRow | null;
   /** Student's lab row (by day) – for lab activity heatmap */
   labsByDay: LabRow | null;
-  /** Course median lab row (by day) – for lab median heatmap */
-  labsMedianByDay: LabMedianRow | null;
   error: string | null;
   /** True if student has calendar or lab data */
   hasData: boolean;

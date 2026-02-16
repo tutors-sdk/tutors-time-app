@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
+
+  /** Row with date keys (YYYY-MM-DD) and numeric values – CalendarRow, LabRow, etc. */
+  type HeatmapRow = Record<string, string | number> | null;
 
   interface Props {
-    /** Calendar row with date keys (YYYY-MM-DD) and values in minutes per day */
-    calendarByDay: CalendarRow | CalendarMedianRow | null;
+    /** Row with date keys (YYYY-MM-DD) and values in minutes per day */
+    calendarByDay: HeatmapRow;
     /** Date identifiers (YYYY-MM-DD) for each day */
     dates: string[];
     /** Unique element ID for Heat.js (required when multiple heatmaps on same page) */

@@ -11,22 +11,40 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
 
-  /** Student's calendar row (by week) - loaded from StudentCalendar.calendarByWeek */
+  const course = $derived(studentCalendar?.course ?? null);
+  /** Student's calendar row (by week) */
   const calendarByWeek = $derived(studentCalendar?.calendarByWeek ?? null);
-  const medianRow = $derived(studentCalendar?.courseMedianByWeek ?? null);
-  const weeks = $derived(studentCalendar?.weeks ?? []);
-  /** Student's calendar row (by day) - for heatmap */
+  /** Course median row (by week) – from course.calendarModel */
+  const medianRow = $derived(course?.calendarModel?.medianByWeek?.row ?? null);
+  /** Week column names – from course.calendarModel */
+  const weeks = $derived(
+    course?.calendarModel?.week?.columnDefs
+      ?.map((c) => c.field as string)
+      .filter((f) => f && f !== "full_name" && f !== "studentid" && f !== "totalSeconds") ?? []
+  );
+  /** Student's calendar row (by day) – for heatmap */
   const calendarByDay = $derived(studentCalendar?.calendarByDay ?? null);
-  const dates = $derived(studentCalendar?.dates ?? []);
-  /** Course median row (by day) - for median heatmap */
-  const courseMedianByDay = $derived(studentCalendar?.courseMedianByDay ?? null);
+  /** Date column names – from course.calendarModel */
+  const dates = $derived(
+    course?.calendarModel?.day?.columnDefs
+      ?.map((c) => c.field as string)
+      .filter((f) => f && f !== "full_name" && f !== "studentid" && f !== "totalSeconds") ?? []
+  );
+  /** Course median row (by day) – from course.calendarModel */
+  const courseMedianByDay = $derived(course?.calendarModel?.medianByDay?.row ?? null);
   const studentLabRow = $derived(studentCalendar?.labsByLab ?? null);
-  const labMedianRow = $derived(studentCalendar?.labsMedianByLab ?? null);
-  const labColumns = $derived(studentCalendar?.labColumns ?? []);
+  /** Course median lab row – from course.labsModel */
+  const labMedianRow = $derived(course?.labsModel?.medianByLab?.row ?? null);
+  /** Lab column names – from course.labsModel */
+  const labColumns = $derived(
+    course?.labsModel?.lab?.columnDefs
+      ?.map((c) => c.field as string)
+      .filter((f) => f && f !== "studentid" && f !== "full_name" && f !== "totalMinutes") ?? []
+  );
   /** Student's lab row (by day) – for lab activity heatmap */
   const labsByDay = $derived(studentCalendar?.labsByDay ?? null);
-  /** Course median lab row (by day) – for lab median heatmap */
-  const labsMedianByDay = $derived(studentCalendar?.labsMedianByDay ?? null);
+  /** Course median lab row (by day) – from course.labsMedianByDay */
+  const labsMedianByDay = $derived(course?.labsMedianByDay ?? null);
 
   onMount(async () => {
     const rawCourseId: string | undefined = $page.params.courseid as string | undefined;
