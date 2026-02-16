@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CalendarComponent from "$lib/components/calendar/CalendarComponent.svelte";
+  import CalendarGrid from "$lib/components/calendar/CalendarGrid.svelte";
   import type { CourseCalendar } from "$lib/types";
 
   interface Props {
@@ -9,4 +9,4 @@
   let { data }: Props = $props();
 </script>
 
-<CalendarComponent course={data.course} mode="day" />
+<CalendarGrid course={data.course} mode="day" />

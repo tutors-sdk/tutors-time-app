@@ -3,6 +3,7 @@
   import type { GridApi } from "ag-grid-community";
   import type { CalendarModel } from "$lib/components/calendar/CalendarModel";
   import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
+  import type { CourseCalendar } from "$lib/types";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -11,7 +12,7 @@
   type GridRow = CalendarRow | CalendarMedianRow;
 
   interface Props {
-    model: CalendarModel;
+    course: CourseCalendar | null;
     mode: Mode;
     variant?: Variant;
     /** When true, append the median row to the grid (student view: show student + course median in same grid). */
@@ -20,18 +21,24 @@
     studentId?: string | null;
   }
 
-  let { model, mode, variant = "detail", includeMedianRow = false, studentId = null }: Props = $props();
+  let { course, mode, variant = "detail", includeMedianRow = false, studentId = null }: Props = $props();
+
+  const model = $derived(course?.calendarModel);
+  const title = $derived(mode === "week" ? "Calendar by week" : "Calendar by day");
+  const courseError = $derived(course?.error ?? null);
 
   const isSummary = $derived(variant === "summary");
 
   const baseColumnDefs = $derived(
-    isSummary
-      ? mode === "day"
-        ? model.medianByDay.columnDefs
-        : model.medianByWeek.columnDefs
-      : mode === "day"
-        ? model.day.columnDefs
-        : model.week.columnDefs
+    !model
+      ? []
+      : isSummary
+        ? mode === "day"
+          ? model.medianByDay.columnDefs
+          : model.medianByWeek.columnDefs
+        : mode === "day"
+          ? model.day.columnDefs
+          : model.week.columnDefs
   );
 
   /** Strip sort from columns when includeMedianRow so blank row stays between student and median. */
@@ -42,40 +49,44 @@
   );
 
   const rowData = $derived(
-    isSummary
-      ? (() => {
-          const row = mode === "day" ? model.medianByDay.row : model.medianByWeek.row;
-          return row ? [row] : [];
-        })()
-      : (() => {
-          let rows = mode === "day" ? model.day.rows : model.week.rows;
-          if (studentId != null && studentId !== "") {
-            rows = rows.filter((r) => (r as CalendarRow).studentid === studentId);
-          }
-          if (!includeMedianRow || mode !== "week") return rows;
-          const medianRow = model.medianByWeek.row;
-          if (!medianRow) return rows;
-          const blankRow: CalendarRow = {
-            courseid: "",
-            studentid: "",
-            full_name: "",
-            totalSeconds: 0
-          };
-          const combined: CalendarRow = {
-            ...medianRow,
-            studentid: "",
-            full_name: "Course median"
-          };
-          return [...rows, blankRow, combined];
-        })()
+    !model
+      ? []
+      : isSummary
+        ? (() => {
+            const row = mode === "day" ? model.medianByDay.row : model.medianByWeek.row;
+            return row ? [row] : [];
+          })()
+        : (() => {
+            let rows = mode === "day" ? model.day.rows : model.week.rows;
+            if (studentId != null && studentId !== "") {
+              rows = rows.filter((r) => (r as CalendarRow).studentid === studentId);
+            }
+            if (!includeMedianRow || mode !== "week") return rows;
+            const medianRow = model.medianByWeek.row;
+            if (!medianRow) return rows;
+            const blankRow: CalendarRow = {
+              courseid: "",
+              studentid: "",
+              full_name: "",
+              totalSeconds: 0
+            };
+            const combined: CalendarRow = {
+              ...medianRow,
+              studentid: "",
+              full_name: "Course median"
+            };
+            return [...rows, blankRow, combined];
+          })()
   );
 
   const hasData = $derived(
-    isSummary
-      ? mode === "day"
-        ? model.hasMedianByDay
-        : model.hasMedianByWeek
-      : model.hasData
+    !model
+      ? false
+      : isSummary
+        ? mode === "day"
+          ? model.hasMedianByDay
+          : model.hasMedianByWeek
+        : model.hasData
   );
 
   const ariaLabel = $derived(
@@ -93,7 +104,7 @@
 
   $effect(() => {
     const container = gridContainer;
-    if (!container) return;
+    if (!container || !model) return;
     const api = createGrid<GridRow>(container, {
       columnDefs: columnDefs as any,
       rowData: rowData as any,
@@ -114,7 +125,7 @@
 
   $effect(() => {
     const api = gridApi;
-    if (api) {
+    if (api && model) {
       api.setGridOption("columnDefs", columnDefs as any);
       api.setGridOption("rowData", rowData as any);
       api.setGridOption("loading", model.loading);
@@ -122,39 +133,43 @@
   });
 </script>
 
-{#if model.loading && !hasData}
-  <div class="flex items-center justify-center p-8">
-    <p class="text-lg">
-      {#if isSummary}
-        Loading course summary...
+<svelte:head>
+  <title>{title}</title>
+  <meta name="description" content="Course {title.toLowerCase()}" />
+</svelte:head>
+
+<section class="p-2 h-[calc(100vh-4rem)]">
+  <div class="card p-4 h-full flex flex-col">
+    <div class="flex flex-col flex-1 min-h-0">
+      {#if !course}
+        <div class="flex items-center justify-center flex-1">
+          <p class="text-lg">Loading calendar data...</p>
+        </div>
+      {:else if courseError}
+        <div class="card preset-filled-error-500 p-4">
+          <p class="font-bold">Error loading calendar</p>
+          <p class="text-sm">{courseError}</p>
+        </div>
+      {:else if !model?.hasData}
+        <div class="flex items-center justify-center flex-1">
+          <p class="text-lg text-surface-600">No calendar data found for this course.</p>
+        </div>
       {:else}
-        Loading calendar data...
+        <div class="flex-1 min-h-0 flex flex-col">
+          <div class="flex-1 min-h-0">
+            {#if model?.error}
+              <div class="card preset-filled-error-500 p-4">
+                <p class="font-bold">Error loading data</p>
+                <p class="text-sm">{model.error}</p>
+              </div>
+            {:else}
+              <div class="ag-theme-quartz grid-fill-container h-full min-h-0" role="grid" aria-label={ariaLabel}>
+                <div bind:this={gridContainer} class="grid-fill-container"></div>
+              </div>
+            {/if}
+          </div>
+        </div>
       {/if}
-    </p>
+    </div>
   </div>
-{:else if model.error}
-  <div class="card preset-filled-error-500 p-4">
-    <p class="font-bold">
-      {#if isSummary}
-        Error loading summary
-      {:else}
-        Error loading data
-      {/if}
-    </p>
-    <p class="text-sm">{model.error}</p>
-  </div>
-{:else if !hasData}
-  <div class="flex items-center justify-center p-8">
-    <p class="text-lg text-surface-600">
-      {#if isSummary}
-        No summary available for this course
-      {:else}
-        No calendar data available
-      {/if}
-    </p>
-  </div>
-{:else}
-  <div class="ag-theme-quartz grid-fill-container h-full min-h-0" role="grid" aria-label={ariaLabel}>
-    <div bind:this={gridContainer} class="grid-fill-container"></div>
-  </div>
-{/if}
+</section>

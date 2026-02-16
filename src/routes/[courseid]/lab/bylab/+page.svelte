@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LabsComponent from "$lib/components/labs/LabsComponent.svelte";
+  import LabsGrid from "$lib/components/labs/LabsGrid.svelte";
   import type { CourseCalendar } from "$lib/types";
 
   interface Props {
@@ -9,4 +9,4 @@
   let { data }: Props = $props();
 </script>
 
-<LabsComponent course={data.course} mode="lab" />
+<LabsGrid course={data.course} mode="lab" />
