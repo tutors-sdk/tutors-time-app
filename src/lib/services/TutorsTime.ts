@@ -12,7 +12,7 @@ import { buildLabRowByDay, buildMedianByDay } from "$lib/components/labs/labUtil
 
 const courseMap = new Map<string, CourseTime>();
 
-export const CourseTimeService: TutorsTimeService = {
+export const TutorsTime: TutorsTimeService = {
   /** Fetch student display name and avatar for app bar (used when on student route). */
   async getStudentDisplayInfo(studentId: string): Promise<StudentDisplayInfo> {
     const supabase = getSupabase();

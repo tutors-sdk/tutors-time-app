@@ -1,4 +1,4 @@
-import { CourseTimeService } from "$lib/services/CourseTimeService";
+import { TutorsTime } from "$lib/services/TutorsTime";
 
 export async function load({ params }: { params: Record<string, string> }) {
   const courseId = (params.courseid ?? "").trim();
@@ -6,9 +6,9 @@ export async function load({ params }: { params: Record<string, string> }) {
   if (!courseId || !studentId) {
     return { course: null };
   }
-  const courseTime = await CourseTimeService.loadCourseTime(courseId);
+  const courseTime = await TutorsTime.loadCourseTime(courseId);
 
-    const studentCalendar = await CourseTimeService.loadStudentTime(
+    const studentCalendar = await TutorsTime.loadStudentTime(
       courseId,
       studentId,
       null,

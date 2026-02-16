@@ -1,6 +1,6 @@
 <script lang="ts">
   import CourseIdDialog from "$lib/components/CourseIdDialog.svelte";
-  import { CourseTimeService } from "$lib/services/CourseTimeService";
+  import { TutorsTime } from "$lib/services/TutorsTime";
   import { goto } from "$app/navigation";
 
   let dialogOpen = $state(true);
@@ -12,7 +12,7 @@
     dialogError = null;
     dialogLoading = true;
     try {
-      await CourseTimeService.loadCourseTime(courseId, startDate, endDate);
+      await TutorsTime.loadCourseTime(courseId, startDate, endDate);
       dialogOpen = false;
       goto(`/${courseId}/calendar/byweek`);
     } catch (e) {

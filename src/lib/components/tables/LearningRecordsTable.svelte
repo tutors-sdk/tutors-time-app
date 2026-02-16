@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CourseTimeService } from "$lib/services/CourseTimeService";
+  import { TutorsTime } from "$lib/services/TutorsTime";
   import type { TutorsTimeCourse } from "$lib/types";
   import { onMount } from "svelte";
 
@@ -17,7 +17,7 @@
       return;
     }
     try {
-      const courseTime = await CourseTimeService.loadCourseTime(id);
+      const courseTime = await TutorsTime.loadCourseTime(id);
       course = courseTime;
       error = course?.learningRecordsError ?? null;
     } catch (e) {

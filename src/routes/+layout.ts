@@ -1,5 +1,5 @@
 import type { LayoutLoad } from "./$types";
-import { CourseTimeService } from "$lib/services/CourseTimeService";
+import { TutorsTime } from "$lib/services/TutorsTime";
 
 /** Derive a human-readable view type from the current pathname. */
 function getViewType(pathname: string): string {
@@ -42,7 +42,7 @@ export const load: LayoutLoad = async ({ url }) => {
   let courseIcon: { type: string; color: string | null } | null = null;
   if (courseId.trim()) {
     try {
-      const info = await CourseTimeService.getCourseDisplayInfo(courseId);
+      const info = await TutorsTime.getCourseDisplayInfo(courseId);
       courseTitle = info.title;
       courseImg = info.img;
       courseIcon = info.icon;
@@ -58,7 +58,7 @@ export const load: LayoutLoad = async ({ url }) => {
   if (isStudentRoute && courseId.trim()) {
     const studentId = segments[1] ?? "";
     try {
-      const info = await CourseTimeService.getStudentDisplayInfo(studentId);
+      const info = await TutorsTime.getStudentDisplayInfo(studentId);
       studentName = info.studentName;
       avatarUrl = info.avatarUrl;
     } catch {

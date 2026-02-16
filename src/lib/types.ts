@@ -43,13 +43,13 @@ export interface TutorsConnectUser {
   date_last_accessed: string | null; // timestamptz (ISO string)
 }
 
-/** Return type of CourseTimeService.getStudentDisplayInfo */
+/** Return type of TutorsTime.getStudentDisplayInfo */
 export type StudentDisplayInfo = {
   studentName: string;
   avatarUrl: string | null;
 };
 
-/** Return type of CourseTimeService.getCourseDisplayInfo */
+/** Return type of TutorsTime.getCourseDisplayInfo */
 export type CourseDisplayInfo = {
   title: string;
   img: string | null;
@@ -130,7 +130,7 @@ export type TutorsTimeStudent = {
 
 /**
  * Abstraction for course/calendar and student display services.
- * CourseTimeService is the default implementation.
+ * TutorsTime is the default implementation.
  */
 export interface TutorsTimeService {
   getStudentDisplayInfo(studentId: string): Promise<StudentDisplayInfo>;
