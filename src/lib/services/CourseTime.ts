@@ -58,17 +58,7 @@ export class CourseTime implements CourseCalendar {
       this.calendarModel = new CalendarModel(filteredData, false, null);
       this.labsModel = new LabsModel(learningRecords, false, learningRecordsError);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to load calendar data";
-      this.id = id;
-      this.title = title;
-      this.data = [];
-      this.loading = false;
-      this.error = msg;
-      this.learningRecords = [];
-      this.learningRecordsLoading = false;
-      this.learningRecordsError = msg;
-      this.calendarModel = new CalendarModel([], false, msg);
-      this.labsModel = new LabsModel([], false, msg);
+      throw new Error("Failed to load calendar data");
     }
 
     return this;
