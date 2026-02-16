@@ -1,5 +1,5 @@
 import type {
-  CourseCalendar,
+  TutorsTimeCourse,
   LearningRecord,
   CalendarEntry,
   CalendarEntryBase
@@ -10,7 +10,7 @@ import { LabsModel } from "$lib/components/labs/LabsModel";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectUser } from "$lib/types";
 
-export class CourseTime implements CourseCalendar {
+export class CourseTime implements TutorsTimeCourse {
   id = "";
   title = "";
   data: CalendarEntry[] = [];
@@ -31,7 +31,7 @@ export class CourseTime implements CourseCalendar {
     startDate: string | null,
     endDate: string | null,
     title: string
-  ): Promise<CourseCalendar> {
+  ): Promise<TutorsTimeCourse> {
     const id = courseId.trim();
     if (!id) throw new Error("Course ID is required");
 

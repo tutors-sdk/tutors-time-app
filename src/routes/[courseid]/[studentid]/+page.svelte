@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { StudentCalendar } from "$lib/types";
+  import type { TutorsTimeStudent } from "$lib/types";
   import CalendarHeatmap from "$lib/components/calendar/CalendarHeatmap.svelte";
   import StudentCalendarTable from "$lib/components/tables/StudentCalendarTable.svelte";
   import StudentLabTable from "$lib/components/tables/StudentLabTable.svelte";
 
   interface Props {
-    data: { studentCalendar: StudentCalendar };
+    data: { studentCalendar: TutorsTimeStudent };
   }
 
   let { data }: Props = $props();

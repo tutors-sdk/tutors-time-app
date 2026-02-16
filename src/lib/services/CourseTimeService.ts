@@ -1,17 +1,18 @@
 import { CourseTime } from "./CourseTime";
 import { getSupabase } from "./supabase";
 import type {
-  StudentCalendar,
-  CourseCalendar,
+  TutorsTimeStudent,
+  TutorsTimeCourse,
   StudentDisplayInfo,
   CourseDisplayInfo,
-  TutorsConnectCourse
+  TutorsConnectCourse,
+  TutorsTimeService
 } from "../types";
 import { buildLabRowByDay, buildMedianByDay } from "$lib/components/labs/labUtils";
 
 const courseMap = new Map<string, CourseTime>();
 
-export const CourseTimeService = {
+export const CourseTimeService: TutorsTimeService = {
   /** Fetch student display name and avatar for app bar (used when on student route). */
   async getStudentDisplayInfo(studentId: string): Promise<StudentDisplayInfo> {
     const supabase = getSupabase();
@@ -112,7 +113,7 @@ export const CourseTimeService = {
     studentId: string,
     startDate?: string | null,
     endDate?: string | null
-  ): Promise<StudentCalendar> {
+  ): Promise<TutorsTimeStudent> {
     if (!courseId) throw new Error("Course ID is required");
     if (!studentId) throw new Error("Student ID is required");
 
@@ -165,7 +166,7 @@ export const CourseTimeService = {
     const hasCalData = (studentCalRowWeek != null || studentCalRowDay != null) && calModel.hasData;
     const hasLabData = studentLabRow != null && labsModel.hasData;
 
-    const courseWithMedians: CourseCalendar = {
+    const courseWithMedians: TutorsTimeCourse = {
       ...course,
       labsMedianByDay,
       weeks,

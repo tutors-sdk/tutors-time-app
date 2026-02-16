@@ -1,9 +1,9 @@
 <script lang="ts">
   import CalendarMedianGrid from "$lib/components/calendar/CalendarMedianGrid.svelte";
-  import type { CourseCalendar } from "$lib/types";
+  import type { TutorsTimeCourse } from "$lib/types";
 
   interface Props {
-    data: { course: CourseCalendar | null };
+    data: { course: TutorsTimeCourse | null };
   }
 
   let { data }: Props = $props();

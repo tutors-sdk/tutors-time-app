@@ -3,12 +3,12 @@
   import type { GridApi } from "ag-grid-community";
   import type { LabsModel } from "$lib/components/labs/LabsModel";
   import type { LabRow, LabMedianRow, LabViewMode } from "$lib/components/labs/labUtils";
-  import type { CourseCalendar } from "$lib/types";
+  import type { TutorsTimeCourse } from "$lib/types";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
   interface Props {
-    course: CourseCalendar | null;
+    course: TutorsTimeCourse | null;
     mode: LabViewMode;
     /** Optional: limit rows to a single student id (matches LabRow.studentid). */
     studentId?: string | null;

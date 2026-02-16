@@ -1,11 +1,11 @@
 <script lang="ts">
   import { CourseTimeService } from "$lib/services/CourseTimeService";
-  import type { CourseCalendar } from "$lib/types";
+  import type { TutorsTimeCourse } from "$lib/types";
   import { onMount } from "svelte";
 
   let { courseId }: { courseId: string } = $props();
 
-  let course = $state<CourseCalendar | null>(null);
+  let course = $state<TutorsTimeCourse | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
 
@@ -17,7 +17,7 @@
       return;
     }
     try {
-      const courseTime = await CourseTimeService.loadCourseCalendar(id);
+      const courseTime = await CourseTimeService.loadTutorsTimeCourse(id);
       course = courseTime;
       error = course?.error ?? null;
     } catch (e) {

@@ -74,7 +74,7 @@ import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/ca
 import type { LabRow, LabMedianRow } from "$lib/components/labs/labUtils";
 
 // Aggregated per-course calendar view used by the grids
-export type CourseCalendar = {
+export type TutorsTimeCourse = {
   id: string; // original course ID
   title: string; // display title (usually from tutors-connect-courses)
   data: CalendarEntry[];
@@ -101,12 +101,12 @@ export type CourseCalendar = {
     startDate: string | null,
     endDate: string | null,
     title: string
-  ): Promise<CourseCalendar>;
+  ): Promise<TutorsTimeCourse>;
 };
 
 
 // Single-student calendar view for a given course (extracted from CourseTime)
-export type StudentCalendar = {
+export type TutorsTimeStudent = {
   courseid: string;
   courseTitle: string;
   studentid: string;
@@ -114,7 +114,7 @@ export type StudentCalendar = {
   /** Student avatar URL from tutors-connect-users (null if not set or fetch failed) */
   avatarUrl: string | null;
   /** Loaded course data – use course.calendarModel / course.labsModel for all median values */
-  course: CourseCalendar | null;
+  course: TutorsTimeCourse | null;
   /** Student's calendar row (by week view) */
   calendarByWeek: CalendarRow | null;
   /** Student's calendar row (by day view) */
@@ -127,6 +127,26 @@ export type StudentCalendar = {
   /** True if student has calendar or lab data */
   hasData: boolean;
 };
+
+/**
+ * Abstraction for course/calendar and student display services.
+ * CourseTimeService is the default implementation.
+ */
+export interface TutorsTimeService {
+  getStudentDisplayInfo(studentId: string): Promise<StudentDisplayInfo>;
+  getCourseDisplayInfo(courseId: string): Promise<CourseDisplayInfo>;
+  loadCourseCalendar(
+    id: string,
+    startDate?: string | null,
+    endDate?: string | null
+  ): Promise<TutorsTimeCourse>;
+  loadStudentCalendar(
+    courseId: string,
+    studentId: string,
+    startDate?: string | null,
+    endDate?: string | null
+  ): Promise<TutorsTimeStudent>;
+}
 
 
 

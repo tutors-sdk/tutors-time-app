@@ -3,14 +3,14 @@
   import type { GridApi } from "ag-grid-community";
   import type { CalendarModel } from "$lib/components/calendar/CalendarModel";
   import type { CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
-  import type { CourseCalendar } from "$lib/types";
+  import type { TutorsTimeCourse } from "$lib/types";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
   type SummaryMode = "day" | "week";
 
   interface Props {
-    course: CourseCalendar | null;
+    course: TutorsTimeCourse | null;
     mode: SummaryMode;
   }
 

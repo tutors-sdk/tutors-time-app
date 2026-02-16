@@ -3,7 +3,7 @@
   import type { GridApi } from "ag-grid-community";
   import type { CalendarModel } from "$lib/components/calendar/CalendarModel";
   import type { CalendarRow, CalendarMedianRow } from "$lib/components/calendar/calendarUtils";
-  import type { CourseCalendar } from "$lib/types";
+  import type { TutorsTimeCourse } from "$lib/types";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -12,7 +12,7 @@
   type GridRow = CalendarRow | CalendarMedianRow;
 
   interface Props {
-    course: CourseCalendar | null;
+    course: TutorsTimeCourse | null;
     mode: Mode;
     variant?: Variant;
     /** When true, append the median row to the grid (student view: show student + course median in same grid). */

@@ -3,14 +3,14 @@
   import type { GridApi } from "ag-grid-community";
   import type { LabsModel } from "$lib/components/labs/LabsModel";
   import type { LabMedianRow } from "$lib/components/labs/labUtils";
-  import type { CourseCalendar } from "$lib/types";
+  import type { TutorsTimeCourse } from "$lib/types";
 
   ModuleRegistry.registerModules([AllCommunityModule]);
 
   type MedianMode = "day" | "week";
 
   interface Props {
-    course: CourseCalendar | null;
+    course: TutorsTimeCourse | null;
     mode: MedianMode;
   }
 
