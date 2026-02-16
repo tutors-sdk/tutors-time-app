@@ -70,11 +70,11 @@ export const CourseTimeService = {
   },
 
   /**
-   * Load a course by ID. Returns cached CourseTime if already loaded (when no date filter),
+   * Load a course calendar by ID. Returns cached CourseTime if already loaded (when no date filter),
    * otherwise creates and loads a new one.
    * Caching only applies when both startDate and endDate are null/undefined.
    */
-  async loadCourse(
+  async loadCourseCalendar(
     id: string,
     startDate?: string | null,
     endDate?: string | null
@@ -105,7 +105,7 @@ export const CourseTimeService = {
 
   /**
    * Load calendar data for a single student within a course.
-   * Calls loadCourse to get CourseTime, then extracts student-specific data from the model.
+   * Calls loadCourseCalendar to get CourseTime, then extracts student-specific data from the model.
    */
   async loadStudentCalendar(
     courseId: string,
@@ -117,7 +117,7 @@ export const CourseTimeService = {
     if (!studentId) throw new Error("Student ID is required");
 
     const displayInfo = await this.getStudentDisplayInfo(studentId);
-    const courseTime = await this.loadCourse(courseId, startDate ?? null, endDate ?? null);
+    const courseTime = await this.loadCourseCalendar(courseId, startDate ?? null, endDate ?? null);
     const course = courseTime;
 
     const calModel = course.calendarModel;

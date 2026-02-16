@@ -12,7 +12,7 @@
     dialogError = null;
     dialogLoading = true;
     try {
-      await CourseTimeService.loadCourse(courseId, startDate, endDate);
+      await CourseTimeService.loadCourseCalendar(courseId, startDate, endDate);
       dialogOpen = false;
       goto(`/${courseId}/calendar/byweek`);
     } catch (e) {

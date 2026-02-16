@@ -6,7 +6,7 @@ export async function load({ params }: { params: Record<string, string> }) {
   if (!courseId || !studentId) {
     return { course: null };
   }
-  const courseTime = await CourseTimeService.loadCourse(courseId);
+  const courseTime = await CourseTimeService.loadCourseCalendar(courseId);
 
     const studentCalendar = await CourseTimeService.loadStudentCalendar(
       courseId,

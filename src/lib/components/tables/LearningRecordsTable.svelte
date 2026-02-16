@@ -17,7 +17,7 @@
       return;
     }
     try {
-      const courseTime = await CourseTimeService.loadCourse(id);
+      const courseTime = await CourseTimeService.loadCourseCalendar(id);
       course = courseTime;
       error = course?.learningRecordsError ?? null;
     } catch (e) {
