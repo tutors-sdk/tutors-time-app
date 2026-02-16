@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
+  import { browser } from "$app/environment";
 
   /** Row with date keys (YYYY-MM-DD) and numeric values – CalendarRow, LabRow, etc. */
   type HeatmapRow = Record<string, string | number> | null;
@@ -17,7 +18,9 @@
 
   let container = $state<HTMLDivElement | null>(null);
 
+  /** Only run jheat.js in browser – it accesses window/document and fails during SSR */
   onMount(async () => {
+    if (!browser) return;
     const id = elementId;
     if (!container || !calendarByDay || dates.length === 0) return;
 
@@ -55,6 +58,7 @@
   });
 
   onDestroy(() => {
+    if (!browser) return;
     const id = elementId;
     const heat = (window as unknown as { $heat?: { destroy: (id: string) => void } }).$heat;
     if (heat?.destroy) {
@@ -67,10 +71,19 @@
   });
 </script>
 
-<div
-  bind:this={container}
-  id={elementId}
-  class="calendar-heatmap-container min-h-[200px] w-full"
-  role="img"
-  aria-label="Calendar activity heatmap"
-></div>
+{#if browser}
+  <div
+    bind:this={container}
+    id={elementId}
+    class="calendar-heatmap-container min-h-[200px] w-full"
+    role="img"
+    aria-label="Calendar activity heatmap"
+  ></div>
+{:else}
+  <div
+    id={elementId}
+    class="calendar-heatmap-container min-h-[200px] w-full"
+    role="img"
+    aria-label="Calendar activity heatmap"
+  ></div>
+{/if}
