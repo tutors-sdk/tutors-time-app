@@ -1,10 +1,12 @@
 <script lang="ts">
   import CalendarComponent from "$lib/components/calendar/CalendarComponent.svelte";
-  import { page } from "$app/stores";
+  import type { CourseCalendar } from "$lib/types";
 
-  const courseId = $derived(($page.params.courseid as string) ?? "");
+  interface Props {
+    data: { course: CourseCalendar | null };
+  }
+
+  let { data }: Props = $props();
 </script>
 
-{#key courseId}
-  <CalendarComponent courseId={courseId} mode="week" />
-{/key}
+<CalendarComponent course={data.course} mode="week" />
