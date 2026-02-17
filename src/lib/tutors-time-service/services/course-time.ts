@@ -3,13 +3,13 @@ import type {
   LearningRecord,
   CalendarEntry,
   CalendarModel,
-  LabModel
-} from "./types";
-import { BaseCalendarModel } from "$lib/tutors-time-service/BaseCalendarModel";
-import { filterByDateRange } from "$lib/tutors-time-service/utils";
-import { BaseLabModel } from "$lib/tutors-time-service/BaseLabModel";
+  LabModel,
+  TutorsConnectUser
+} from "../types";
+import { BaseCalendarModel } from "./base-calendar-model";
+import { BaseLabModel } from "./base-lab-model";
+import { filterByDateRange } from "../utils";
 import { getSupabase } from "./supabase";
-import type { TutorsConnectUser } from "$lib/tutors-time-service/types";
 
 export class CourseTime implements TutorsTimeCourse {
   id = "";

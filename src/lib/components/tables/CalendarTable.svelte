@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TutorsTime } from "$lib/tutors-time-service/TutorsTime";
+  import { TutorsTime } from "$lib/tutors-time-service";
   import type { TutorsTimeCourse } from "$lib/tutors-time-service/types";
   import { onMount } from "svelte";
 

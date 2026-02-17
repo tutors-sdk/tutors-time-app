@@ -1,4 +1,4 @@
-import { CourseTime } from "./CourseTime";
+import { CourseTime } from "./course-time";
 import { getSupabase } from "./supabase";
 import type {
   TutorsTimeStudent,
@@ -7,8 +7,8 @@ import type {
   CourseDisplayInfo,
   TutorsConnectCourse,
   TutorsTimeService
-} from "./types";
-import { BaseLabModel } from "$lib/tutors-time-service/BaseLabModel";
+} from "../types";
+import { BaseLabModel } from "./base-lab-model";
 
 const courseMap = new Map<string, CourseTime>();
 

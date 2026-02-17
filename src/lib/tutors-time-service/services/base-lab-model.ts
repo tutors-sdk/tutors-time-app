@@ -1,7 +1,7 @@
-import type { LearningRecord, LabModel, LabTable, LabMedianTable, LabRow, LabMedianRow } from "$lib/tutors-time-service/types";
-import { extractLabIdentifier } from "$lib/tutors-time-service/utils";
+import type { LearningRecord, LabModel, LabTable, LabMedianTable, LabRow, LabMedianRow } from "../types";
+import { extractLabIdentifier } from "../utils";
 
-export type { LabTable, LabMedianTable } from "$lib/tutors-time-service/types";
+export type { LabTable, LabMedianTable } from "../types";
 
 type LabViewMode = "lab" | "step";
 

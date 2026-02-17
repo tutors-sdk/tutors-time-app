@@ -1,6 +1,6 @@
 <script lang="ts">
   import CourseIdDialog from "$lib/components/CourseIdDialog.svelte";
-  import { TutorsTime } from "$lib/tutors-time-service/TutorsTime";
+  import { TutorsTime } from "$lib/tutors-time-service";
   import { goto } from "$app/navigation";
 
   let dialogOpen = $state(true);
