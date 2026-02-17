@@ -5,8 +5,8 @@ import type {
   CalendarEntryBase,
   CalendarModel
 } from "../types";
-import { BaseCalendarModel } from "$lib/components/calendar/BaseCalendarModel";
-import { filterByDateRange } from "$lib/components/calendar/calendarUtils";
+import { BaseCalendarModel } from "$lib/services/BaseCalendarModel";
+import { filterByDateRange } from "$lib/services/calendarUtils";
 import { LabsModel } from "$lib/components/labs/LabsModel";
 import { getSupabase } from "./supabase";
 import type { TutorsConnectUser } from "$lib/types";

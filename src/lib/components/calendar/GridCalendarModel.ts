@@ -6,7 +6,7 @@ import {
   formatTimeMinutesOnly,
   cellColorForMinutes,
   type ViewMode
-} from "./calendarUtils";
+} from "$lib/services/calendarUtils";
 
 /** Grid-ready calendar table with ColDef-typed columns for ag-grid. */
 export type GridCalendarTable = {

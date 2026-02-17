@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { LabRow, LabMedianRow } from "$lib/components/labs/labUtils";
   import { extractLabIdentifier } from "$lib/components/labs/labUtils";
-  import { formatTimeMinutesOnly, cellColorForMinutes } from "$lib/components/calendar/calendarUtils";
+  import { formatTimeMinutesOnly, cellColorForMinutes } from "$lib/services/calendarUtils";
 
   interface Props {
     courseid: string;
