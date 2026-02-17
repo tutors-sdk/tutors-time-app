@@ -6,11 +6,11 @@ import type {
   CalendarModel,
   LabModel
 } from "./types";
-import { BaseCalendarModel } from "$lib/services/BaseCalendarModel";
-import { filterByDateRange } from "$lib/services/utils";
-import { BaseLabModel } from "$lib/services/BaseLabModel";
+import { BaseCalendarModel } from "$lib/tutors-time-service/BaseCalendarModel";
+import { filterByDateRange } from "$lib/tutors-time-service/utils";
+import { BaseLabModel } from "$lib/tutors-time-service/BaseLabModel";
 import { getSupabase } from "./supabase";
-import type { TutorsConnectUser } from "$lib/services/types";
+import type { TutorsConnectUser } from "$lib/tutors-time-service/types";
 
 export class CourseTime implements TutorsTimeCourse {
   id = "";

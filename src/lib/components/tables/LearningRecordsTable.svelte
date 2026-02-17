@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { TutorsTime } from "$lib/services/TutorsTime";
-  import type { TutorsTimeCourse } from "$lib/services/types";
+  import { TutorsTime } from "$lib/tutors-time-service/TutorsTime";
+  import type { TutorsTimeCourse } from "$lib/tutors-time-service/types";
   import { onMount } from "svelte";
 
   let { courseId }: { courseId: string } = $props();

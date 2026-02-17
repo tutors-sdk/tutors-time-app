@@ -1,4 +1,4 @@
-import { TutorsTime } from "$lib/services/TutorsTime";
+import { TutorsTime } from "$lib/tutors-time-service/TutorsTime";
 
 export async function load({ params }: { params: Record<string, string> }) {
   const courseId = (params.courseid ?? "").trim();

@@ -1,11 +1,11 @@
 import type { ColDef, ICellRendererParams } from "ag-grid-community";
-import type { LabModel, LabRow, LabMedianRow } from "$lib/services/types";
+import type { LabModel, LabRow, LabMedianRow } from "$lib/tutors-time-service/types";
 import {
   cellColorForMinutes,
   formatTimeMinutesOnly,
   formatDateShort
-} from "$lib/services/utils";
-import { extractLabIdentifier, extractStepName } from "$lib/services/utils";
+} from "$lib/tutors-time-service/utils";
+import { extractLabIdentifier, extractStepName } from "$lib/tutors-time-service/utils";
 
 /** Header mode: "lab" = book segment, "step" = step name (last segment), "raw" = full id. */
 type LabColumnHeaderMode = "lab" | "step" | "raw";

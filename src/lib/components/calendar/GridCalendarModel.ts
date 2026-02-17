@@ -1,11 +1,11 @@
 import type { ColDef } from "ag-grid-community";
-import type { CalendarModel, CalendarRow, CalendarMedianRow } from "$lib/services/types";
+import type { CalendarModel, CalendarRow, CalendarMedianRow } from "$lib/tutors-time-service/types";
 import {
   formatDateShort,
   formatTimeMinutesOnly,
   cellColorForMinutes,
   type ViewMode
-} from "$lib/services/utils";
+} from "$lib/tutors-time-service/utils";
 
 /** Grid-ready calendar table with ColDef-typed columns for ag-grid. */
 export type GridCalendarTable = {

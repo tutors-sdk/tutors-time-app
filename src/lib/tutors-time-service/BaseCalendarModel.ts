@@ -5,15 +5,15 @@ import type {
   CalendarModel,
   CalendarTable,
   CalendarMedianTable
-} from "$lib/services/types";
+} from "$lib/tutors-time-service/types";
 import {
   getDistinctSortedWeeks,
   getDistinctSortedDates,
   getMondayForDate,
   type ViewMode
-} from "$lib/services/utils";
+} from "$lib/tutors-time-service/utils";
 
-export type { CalendarTable, CalendarMedianTable } from "$lib/services/types";
+export type { CalendarTable, CalendarMedianTable } from "$lib/tutors-time-service/types";
 
 /**
  * Calendar data prepared for CalendarGrid and CalendarMedianGrid.

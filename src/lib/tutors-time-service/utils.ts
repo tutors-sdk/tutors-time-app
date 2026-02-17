@@ -1,4 +1,4 @@
-import type { CalendarEntry, LearningRecord } from "$lib/services/types";
+import type { CalendarEntry, LearningRecord } from "$lib/tutors-time-service/types";
 
 // Shared view mode type for calendar grids.
 export type ViewMode = "week" | "day";

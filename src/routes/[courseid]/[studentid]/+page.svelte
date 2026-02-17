@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TutorsTimeStudent } from "$lib/services/types";
+  import type { TutorsTimeStudent } from "$lib/tutors-time-service/types";
   import CalendarHeatmap from "$lib/components/calendar/CalendarHeatmap.svelte";
   import StudentCalendarTable from "$lib/components/tables/StudentCalendarTable.svelte";
   import StudentLabTable from "$lib/components/tables/StudentLabTable.svelte";
