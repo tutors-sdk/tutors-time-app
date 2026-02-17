@@ -1,16 +1,16 @@
 <script lang="ts">
   import type { LabRow, LabMedianRow } from "$lib/tutors-time-service/types";
-  import { formatDateShort, formatTimeMinutesOnly, cellColorForMinutes } from "$lib/tutors-time-service/utils";
+  import { extractStepName, formatTimeMinutesOnly, cellColorForMinutes } from "$lib/tutors-time-service/utils";
 
   interface Props {
     courseid: string;
     studentid: string;
-    labsByDay: LabRow | null;
+    labsByStep: LabRow | null;
     medianRow: LabMedianRow | null;
-    dates: string[];
+    stepColumns: string[];
   }
 
-  let { courseid, studentid, labsByDay, medianRow, dates }: Props = $props();
+  let { courseid, studentid, labsByStep, medianRow, stepColumns }: Props = $props();
 
   function formatLabTime(minutes: number | undefined): string {
     if (minutes == null || minutes === 0) return "—";
@@ -18,19 +18,19 @@
   }
 </script>
 
-{#if labsByDay}
+{#if labsByStep}
   <section class="card p-6">
-    <h2 class="text-2xl font-semibold mb-4">Lab Activity by Day</h2>
+    <h2 class="text-2xl font-semibold mb-4">Lab Activity by Step</h2>
     <div class="overflow-x-auto">
       <table class="w-full border-collapse" style="table-layout: fixed;">
         <thead>
           <tr class="border-b-2 border-surface-300">
             <th class="text-left py-4 px-4 font-semibold" style="width: 160px;">Name</th>
             <th class="text-left py-4 px-4 font-semibold" style="width: 120px;">Github</th>
-            {#each dates as date}
+            {#each stepColumns as stepId}
               <th class="text-center py-4 px-1 font-semibold align-middle" style="width: 36px; min-width: 36px; max-width: 36px; height: 140px; overflow: hidden;">
                 <div class="transform -rotate-90 whitespace-nowrap text-xs" style="height: 100%; display: flex; align-items: center; justify-content: center;">
-                  {formatDateShort(date)}
+                  {extractStepName(stepId)}
                 </div>
               </th>
             {/each}
@@ -42,22 +42,22 @@
           <tr class="border-b border-surface-200 hover:bg-surface-50">
             <td class="py-3 px-4" style="width: 160px;">
               <a href="/{courseid}/{studentid}" class="underline text-primary-600">
-                {labsByDay.full_name}
+                {labsByStep.full_name}
               </a>
             </td>
             <td class="py-3 px-4" style="width: 120px;">
               <a href="https://github.com/{studentid}" target="_blank" rel="noopener noreferrer" class="underline text-primary-600">
-                {labsByDay.studentid}
+                {labsByStep.studentid}
               </a>
             </td>
-            {#each dates as date}
-              {@const dateMinutes = labsByDay[date] as number | undefined}
-              <td class="py-3 px-1 text-center font-mono text-xs" style="width: 36px; min-width: 36px; max-width: 36px; background-color: {cellColorForMinutes(dateMinutes ?? 0)}">
-                {formatLabTime(dateMinutes)}
+            {#each stepColumns as stepId}
+              {@const stepMinutes = labsByStep[stepId] as number | undefined}
+              <td class="py-3 px-1 text-center font-mono text-xs" style="width: 36px; min-width: 36px; max-width: 36px; background-color: {cellColorForMinutes(stepMinutes ?? 0)}">
+                {formatLabTime(stepMinutes)}
               </td>
             {/each}
-            <td class="py-3 px-4 text-right font-mono font-semibold" style="background-color: {cellColorForMinutes(labsByDay.totalMinutes ?? 0)}">
-              {formatLabTime(labsByDay.totalMinutes)}
+            <td class="py-3 px-4 text-right font-mono font-semibold" style="background-color: {cellColorForMinutes(labsByStep.totalMinutes ?? 0)}">
+              {formatLabTime(labsByStep.totalMinutes)}
             </td>
           </tr>
           <!-- Median Row -->
@@ -65,10 +65,10 @@
             <tr class="border-b-2 border-surface-300 bg-surface-100">
               <td class="py-3 px-4 font-semibold" style="width: 160px;">Course Median</td>
               <td class="py-3 px-4" style="width: 120px;">—</td>
-              {#each dates as date}
-                {@const dateMinutes = medianRow[date] as number | undefined}
-                <td class="py-3 px-1 text-center font-mono text-xs" style="width: 36px; min-width: 36px; max-width: 36px; background-color: {cellColorForMinutes(dateMinutes ?? 0)}">
-                  {formatLabTime(dateMinutes)}
+              {#each stepColumns as stepId}
+                {@const stepMinutes = medianRow[stepId] as number | undefined}
+                <td class="py-3 px-1 text-center font-mono text-xs" style="width: 36px; min-width: 36px; max-width: 36px; background-color: {cellColorForMinutes(stepMinutes ?? 0)}">
+                  {formatLabTime(stepMinutes)}
                 </td>
               {/each}
               <td class="py-3 px-4 text-right font-mono font-semibold" style="background-color: {cellColorForMinutes(medianRow.totalMinutes ?? 0)}">

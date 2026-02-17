@@ -132,10 +132,16 @@ export const TutorsTime: TutorsTimeService = {
     const weeks = calModel.weeks ?? [];
 
     const labColumns = labsModel.labs;
+    const stepColumns = labsModel.steps;
 
     const studentLabRow =
       labsModel.lab.rows.find((r) => r.studentid === studentId) ??
       labsModel.lab.rows.find((r) => r.studentid === studentName) ??
+      null;
+
+    const studentStepRow =
+      labsModel.step.rows.find((r) => r.studentid === studentId) ??
+      labsModel.step.rows.find((r) => r.studentid === studentName) ??
       null;
 
     const labsByDay =
@@ -161,7 +167,8 @@ export const TutorsTime: TutorsTimeService = {
       labsMedianByDay,
       weeks,
       dates,
-      labColumns
+      labColumns,
+      stepColumns
     };
 
     return {
@@ -175,6 +182,7 @@ export const TutorsTime: TutorsTimeService = {
       calendarByDay: studentCalRowDay,
       labsByLab: studentLabRow,
       labsByDay,
+      labsByStep: studentStepRow,
       error: course.error,
       hasData: hasCalData || hasLabData
     };

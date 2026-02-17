@@ -150,6 +150,8 @@ export type TutorsTimeCourse = {
   dates?: string[];
   /** Lab column names (from labsModel.labs). Set in student view. */
   labColumns?: string[];
+  /** Step column names (from labsModel.steps). Set in student view. */
+  stepColumns?: string[];
   /** Load time data for a course and date range. Populates instance and returns it. */
   loadTime?(
     courseId: string,
@@ -178,6 +180,8 @@ export type TutorsTimeStudent = {
   labsByLab: LabRow | null;
   /** Student's lab row (by day) – for lab activity heatmap */
   labsByDay: LabRow | null;
+  /** Student's lab row (by step view) */
+  labsByStep: LabRow | null;
   error: string | null;
   /** True if student has calendar or lab data */
   hasData: boolean;
