@@ -2,7 +2,9 @@
   import type { TutorsTimeStudent } from "$lib/tutors-time-service/types";
   import CalendarHeatmap from "$lib/components/calendar/CalendarHeatmap.svelte";
   import StudentCalendarTable from "$lib/components/tables/StudentCalendarTable.svelte";
+  import CalendarByDayTable from "$lib/components/tables/CalendarByDayTable.svelte";
   import StudentLabTable from "$lib/components/tables/StudentLabTable.svelte";
+  import LabByDayTable from "$lib/components/tables/LabByDayTable.svelte";
 
   interface Props {
     data: { studentCalendar: TutorsTimeStudent };
@@ -18,33 +20,39 @@
 </svelte:head>
 
 <section class="p-2 h-[calc(100vh-4rem)] flex flex-col min-h-0 overflow-y-auto">
-  <!-- Heatmaps: full width, stacked above tables (both in scroll flow) -->
+  <!-- Heatmaps: activity maps on row 1, median maps on row 2 -->
   {#if data.studentCalendar && (data.studentCalendar.course?.dates?.length ?? 0) > 0}
     <section class="heatmap-full-width shrink-0 py-4 -mx-2 w-[calc(100%+1rem)] min-w-0 space-y-6">
-      {#if data.studentCalendar.calendarByDay}
-        <div class="px-4">
-          <h2 class="text-2xl font-semibold mb-4">Calendar Activity Heatmap – {data.studentCalendar.studentName}</h2>
-          <CalendarHeatmap calendarByDay={data.studentCalendar.calendarByDay} dates={data.studentCalendar.course?.dates ?? []} elementId="student-activity-heatmap" />
-        </div>
-      {/if}
-      {#if data.studentCalendar.course?.calendarModel?.medianByDay?.row}
-        <div class="px-4">
-          <h2 class="text-2xl font-semibold mb-4">Course Median Activity Heatmap</h2>
-          <CalendarHeatmap calendarByDay={data.studentCalendar.course?.calendarModel?.medianByDay?.row} dates={data.studentCalendar.course?.dates ?? []} elementId="course-median-heatmap" />
-        </div>
-      {/if}
-      {#if data.studentCalendar?.labsByDay}
-        <div class="px-4">
-          <h2 class="text-2xl font-semibold mb-4">Lab Activity by Day – {data.studentCalendar.studentName}</h2>
-          <CalendarHeatmap calendarByDay={data.studentCalendar.labsByDay} dates={data.studentCalendar.course?.dates ?? []} elementId="student-lab-heatmap" />
-        </div>
-      {/if}
-      {#if data.studentCalendar.course?.labsMedianByDay}
-        <div class="px-4">
-          <h2 class="text-2xl font-semibold mb-4">Lab Median Activity by Day</h2>
-          <CalendarHeatmap calendarByDay={data.studentCalendar.course?.labsMedianByDay} dates={data.studentCalendar.course?.dates ?? []} elementId="lab-median-heatmap" />
-        </div>
-      {/if}
+      <!-- Row 1: Calendar and Lab activity heatmaps -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+        {#if data.studentCalendar.calendarByDay}
+          <div>
+            <h2 class="text-2xl font-semibold mb-4">Calendar Activity </h2>
+            <CalendarHeatmap calendarByDay={data.studentCalendar.calendarByDay} dates={data.studentCalendar.course?.dates ?? []} elementId="student-activity-heatmap" />
+          </div>
+        {/if}
+        {#if data.studentCalendar?.labsByDay}
+          <div>
+            <h2 class="text-2xl font-semibold mb-4">Lab Activity </h2>
+            <CalendarHeatmap calendarByDay={data.studentCalendar.labsByDay} dates={data.studentCalendar.course?.dates ?? []} elementId="student-lab-heatmap" />
+          </div>
+        {/if}
+      </div>
+      <!-- Row 2: Course and Lab median heatmaps -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+        {#if data.studentCalendar.course?.calendarModel?.medianByDay?.row}
+          <div>
+            <h2 class="text-2xl font-semibold mb-4">Calendar Median Activity</h2>
+            <CalendarHeatmap calendarByDay={data.studentCalendar.course?.calendarModel?.medianByDay?.row} dates={data.studentCalendar.course?.dates ?? []} elementId="course-median-heatmap" />
+          </div>
+        {/if}
+        {#if data.studentCalendar.course?.labsMedianByDay}
+          <div>
+            <h2 class="text-2xl font-semibold mb-4">Lab Median Activity</h2>
+            <CalendarHeatmap calendarByDay={data.studentCalendar.course?.labsMedianByDay} dates={data.studentCalendar.course?.dates ?? []} elementId="lab-median-heatmap" />
+          </div>
+        {/if}
+      </div>
     </section>
   {/if}
 
@@ -70,12 +78,26 @@
             medianRow={data.studentCalendar.course?.calendarModel?.medianByWeek?.row ?? null}
             weeks={data.studentCalendar.course?.weeks ?? []}
           />
+          <CalendarByDayTable
+            courseid={data.studentCalendar.courseid}
+            studentid={data.studentCalendar.studentid}
+            calendarByDay={data.studentCalendar.calendarByDay}
+            medianRow={data.studentCalendar.course?.calendarModel?.medianByDay?.row ?? null}
+            dates={data.studentCalendar.course?.dates ?? []}
+          />
           <StudentLabTable
             courseid={data.studentCalendar.courseid}
             studentid={data.studentCalendar.studentid}
             studentLabRow={data.studentCalendar.labsByLab}
             labMedianRow={data.studentCalendar.course?.labsModel?.medianByLab?.row ?? null}
             labColumns={data.studentCalendar.course?.labColumns ?? []}
+          />
+          <LabByDayTable
+            courseid={data.studentCalendar.courseid}
+            studentid={data.studentCalendar.studentid}
+            labsByDay={data.studentCalendar.labsByDay}
+            medianRow={data.studentCalendar.course?.labsMedianByDay ?? null}
+            dates={data.studentCalendar.course?.dates ?? []}
           />
         </div>
       {/if}
