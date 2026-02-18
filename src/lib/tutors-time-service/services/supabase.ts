@@ -1,12 +1,38 @@
-import { createClient } from "@supabase/supabase-js";
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-// Create client lazily when function is called (not at module load)
-// This ensures env vars are available in SSR context
-export function getSupabase() {
-  if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error("Missing Supabase environment variables. Please check your .env file.");
+let configuredUrl: string | null = null;
+let configuredKey: string | null = null;
+
+/**
+ * Initialise Supabase keys. Must be called before any getSupabase() or service that uses it.
+ * Typically called once at app startup (e.g. in root layout).
+ */
+export function initSupabase(url: string, anonKey: string): void {
+  configuredUrl = url;
+  configuredKey = anonKey;
+}
+
+/** Optional fallback set by app (e.g. in hooks.client.ts) before any load runs. */
+declare global {
+  // eslint-disable-next-line no-var
+  var __TUTORS_TIME_SUPABASE_INIT__: { url: string; key: string } | undefined;
+}
+
+/**
+ * Returns a Supabase client. Requires initSupabase(url, anonKey) to have been called first.
+ * If the app set __TUTORS_TIME_SUPABASE_INIT__ (e.g. in hooks.client.ts), uses that as fallback.
+ */
+export function getSupabase(): SupabaseClient {
+  if (!configuredUrl || !configuredKey) {
+    const fallback = typeof globalThis !== "undefined" ? globalThis.__TUTORS_TIME_SUPABASE_INIT__ : undefined;
+    if (fallback && fallback.url && fallback.key) {
+      initSupabase(fallback.url, fallback.key);
+    }
   }
-
-  return createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+  if (!configuredUrl || !configuredKey) {
+    throw new Error(
+      "Supabase not initialised. Call initSupabase(url, anonKey) before using the tutors-time-service."
+    );
+  }
+  return createClient(configuredUrl, configuredKey);
 }

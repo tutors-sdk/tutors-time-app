@@ -5,7 +5,7 @@ export * from "./types";
 export * from "./utils";
 
 // Re-export services
-export { getSupabase } from "./services/supabase";
+export { getSupabase, initSupabase } from "./services/supabase";
 export { BaseCalendarModel } from "./services/base-calendar-model";
 export type { CalendarTable, CalendarMedianTable } from "./services/base-calendar-model";
 export { BaseLabModel } from "./services/base-lab-model";
