@@ -123,16 +123,16 @@
   <div class="card bg-surface-100-900 w-full max-w-md p-6 space-y-4 shadow-xl m-auto">
     <h2 class="text-2xl font-bold">Select Course</h2>
     <p class="text-surface-600">
-      Enter a course ID to view calendar data. Optionally select a date range to filter the data.
+      Enter a course Url to view calendar data. Optionally select a date range to filter the data.
     </p>
     <div class="space-y-4">
       <div>
-        <label for="courseids-input" class="label">Course ID</label>
+        <label for="courseids-input" class="label">Course Url</label>
         <input
           id="courseids-input"
           type="text"
           bind:value={courseIdsInput}
-          placeholder="Enter course ID"
+          placeholder="Enter course URL"
           class="input w-full"
         />
         {#if error && open}
