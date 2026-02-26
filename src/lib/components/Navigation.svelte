@@ -13,6 +13,11 @@
 
   const navLinks = $derived([
     {
+      label: "Medians",
+      href: `/${courseId}/medians`,
+      icon: "streamline-ultimate-color:app-window-pie-chart"
+    },
+    {
       label: "Calendar by Week",
       href: `${calendarPath}/byweek`,
       icon: "streamline-ultimate-color:calendar-1"
@@ -31,11 +36,6 @@
       label: "Labs by Step",
       href: `${labPath}/bystep`,
       icon: "streamline-ultimate-color:lab-tube-experiment"
-    },
-    {
-      label: "Medians",
-      href: `/${courseId}/medians`,
-      icon: "streamline-ultimate-color:app-window-pie-chart"
     },
     {
       label: "Raw Calendar",

@@ -1,1 +1,1 @@
-<!-- Redirects to /courseid/calendar/byweek via +page.ts load -->
+<!-- Redirects to /courseid/medians via +page.ts load -->

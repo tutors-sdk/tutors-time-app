@@ -14,7 +14,7 @@
     try {
       await TutorsTime.loadCourseTime(courseId, startDate, endDate);
       dialogOpen = false;
-      goto(`/${courseId}/calendar/byweek`);
+      goto(`/${courseId}/medians`);
     } catch (e) {
       dialogError = e instanceof Error ? e.message : "Failed to load calendar data";
     } finally {
