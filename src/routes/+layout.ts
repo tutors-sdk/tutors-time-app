@@ -10,20 +10,12 @@ function getViewType(pathname: string): string {
   // /courseid redirects to calendar/byweek, so this is rarely seen
   if (segments.length === 1) return "Calendar by week";
   if (segments[1] === "calendar") {
-    if (segments[2] === "median") {
-      if (segments[3] === "byday") return "Calendar median by day";
-      if (segments[3] === "byweek") return "Calendar median by week";
-    }
     if (segments[2] === "byday") return "Calendar by day";
     if (segments[2] === "byweek") return "Calendar by week";
     if (segments[2] === "raw") return "Raw Calendar";
     if (segments.length >= 2) return "Calendar";
   }
   if (segments[1] === "lab") {
-    if (segments[2] === "median") {
-      if (segments[3] === "bystep") return "Lab median by step";
-      if (segments[3] === "byweek") return "Lab median by week";
-    }
     if (segments[2] === "bystep") return "Lab by step";
     if (segments[2] === "bylab") return "Lab by lab";
     if (segments[2] === "learning-records") return "Learning Records";
