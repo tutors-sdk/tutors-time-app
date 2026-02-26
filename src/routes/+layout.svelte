@@ -14,29 +14,31 @@
 <AppBar>
   <AppBar.Toolbar class="grid-cols-[1fr_2fr_1fr] h-16 min-h-16">
     <AppBar.Lead class="justify-start">
-      {#if data.courseId}
-        <button
-          type="button"
-          class="btn preset-outlined text-center leading-tight"
-          onclick={() => goto("/")}
-          aria-label="Change course"
-        >
-          Change<br />Course
-        </button>
-      {/if}
+
+      <CourseCard
+      {title}
+      subtitle={subtitle || null}
+      courseIcon={data.courseIcon ?? null}
+      courseImg={data.courseImg ?? null}
+    />
     </AppBar.Lead>
     <AppBar.Headline class="h-full min-w-0">
-      <CourseCard
-        {title}
-        subtitle={subtitle || null}
-        courseIcon={data.courseIcon ?? null}
-        courseImg={data.courseImg ?? null}
-      />
+
     </AppBar.Headline>
     <AppBar.Trail class="justify-end">
       {#if data.studentName}
         <StudentCard fullName={data.studentName} avatarUrl={data.avatarUrl} compact />
       {/if}
+      {#if data.courseId}
+      <button
+        type="button"
+        class="btn preset-outlined text-center leading-tight"
+        onclick={() => goto("/")}
+        aria-label="Change course"
+      >
+        Change<br />Course
+      </button>
+    {/if}
     </AppBar.Trail>
   </AppBar.Toolbar>
 </AppBar>
