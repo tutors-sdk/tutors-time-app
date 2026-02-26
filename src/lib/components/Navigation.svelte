@@ -33,6 +33,11 @@
       icon: "streamline-ultimate-color:lab-tube-experiment"
     },
     {
+      label: "Medians",
+      href: `/${courseId}/medians`,
+      icon: "streamline-ultimate-color:app-window-pie-chart"
+    },
+    {
       label: "Calendar Median By Week",
       href: `${calendarPath}/median/byweek`,
       icon: "streamline-ultimate-color:app-window-pie-chart"
