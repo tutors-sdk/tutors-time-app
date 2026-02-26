@@ -47,7 +47,10 @@ export const load: LayoutLoad = async ({ url }) => {
   let studentName: string | null = null;
   let avatarUrl: string | null = null;
   const isStudentRoute =
-    segments.length === 2 && segments[1] !== "calendar" && segments[1] !== "lab";
+    segments.length === 2 &&
+    segments[1] !== "calendar" &&
+    segments[1] !== "lab" &&
+    segments[1] !== "medians";
   if (isStudentRoute && courseId.trim()) {
     const studentId = segments[1] ?? "";
     try {
