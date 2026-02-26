@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TutorsTimeCourse } from "$lib/tutors-time-service/types";
+  import { BaseLabModel } from "$lib/tutors-time-service/services/base-lab-model";
   import {
     formatDateShort,
     formatTimeMinutesOnly,
@@ -7,6 +8,7 @@
     extractLabIdentifier,
     extractStepName
   } from "$lib/tutors-time-service/utils";
+  import CalendarHeatmap from "$lib/components/calendar/CalendarHeatmap.svelte";
 
   interface Props {
     course: TutorsTimeCourse | null;
@@ -26,6 +28,14 @@
   const dates = $derived(calModel?.dates ?? []);
   const labs = $derived(labsModel?.labs ?? []);
   const steps = $derived(labsModel?.steps ?? []);
+
+  /** Lab median by day – build from learning records when not on course (e.g. medians view) */
+  const labsMedianByDay = $derived(
+    course?.labsMedianByDay ??
+      (course?.learningRecords?.length && dates.length
+        ? BaseLabModel.buildMedianByDay(course.learningRecords, course.id, dates)
+        : null)
+  );
 
   function formatTime(minutes: number | undefined): string {
     if (minutes == null || minutes === 0) return "—";
@@ -50,6 +60,32 @@
     </div>
   {:else}
     <div class="space-y-8">
+      <!-- Heatmaps: Calendar and Lab median by day -->
+      {#if dates.length > 0 && (medianByDay || labsMedianByDay)}
+        <section class="heatmap-full-width -mx-2 w-[calc(100%+1rem)] min-w-0 space-y-6 px-4">
+          {#if medianByDay}
+            <div>
+              <h2 class="text-xl font-semibold mb-4">Calendar Median by Day</h2>
+              <CalendarHeatmap
+                calendarByDay={medianByDay}
+                dates={dates}
+                elementId="medians-calendar-heatmap"
+              />
+            </div>
+          {/if}
+          {#if labsMedianByDay}
+            <div>
+              <h2 class="text-xl font-semibold mb-4">Lab Median by Day</h2>
+              <CalendarHeatmap
+                calendarByDay={labsMedianByDay}
+                dates={dates}
+                elementId="medians-lab-heatmap"
+              />
+            </div>
+          {/if}
+        </section>
+      {/if}
+
       <!-- Calendar Median by Week -->
       {#if medianByWeek}
         <div class="card p-6">
